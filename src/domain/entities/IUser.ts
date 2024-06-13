@@ -1,0 +1,14 @@
+export interface IUser {
+    email: string;
+    name: string;
+    phone: string;
+    password: string;
+    isAdmin?:boolean;
+    coverphoto?:string;
+    education?:string[];
+    skills?:string[];
+    status?:boolean;
+    resume?:string[];
+    avatar?:string;
+    created_at?:Date;
+}

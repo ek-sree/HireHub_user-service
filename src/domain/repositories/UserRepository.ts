@@ -1,6 +1,7 @@
 import { IUserRepository } from './IUserRepository';
 import { IUser } from '../entities/IUser';
 import { User } from '../../model/User';
+import bcrypt from 'bcrypt';
 
 export class UserRepository implements IUserRepository {
     async findByEmail(email: string): Promise<IUser | null> {
@@ -15,7 +16,9 @@ export class UserRepository implements IUserRepository {
 
     async save(user: IUser): Promise<IUser> {
         try {
-            const newUser = new User(user);
+            const hashedPassword = await bcrypt.hash(user.password,10);
+            const userWithHashedPassword = { ...user, password: hashedPassword };
+            const newUser = new User(userWithHashedPassword);
             await newUser.save();
             return newUser;
         } catch (error) {

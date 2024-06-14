@@ -4,6 +4,7 @@ import { connectToDatabase } from '../database/mongodb';
 import { connectToRabbitMQ } from '../mq/rabbitmq';
 import { startGrpcServer } from '../grpc/client/grpcServer';
 
+
 const app = express();
 app.use(express.json());
 

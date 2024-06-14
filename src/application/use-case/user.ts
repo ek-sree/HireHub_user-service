@@ -20,17 +20,22 @@ export const registerUser = async ( userData: IUser): Promise<any> => {
     }
 };
 
-export const verifyOtp = async(userData: IUser): Promise<any> =>{
+export const verifyOtp = async (userData: IUser): Promise<any> => {
     try {
-        await userRepo.save(userData);
-        console.log("ready to send success message");
+        const savedUser = await userRepo.save(userData);
+        console.log("ready to send success message", savedUser);
         
-        return {message:"User data saved successfully", success: true};
+        // Return the saved user data along with the success message
+        return {
+            message: "User data saved successfully",
+            success: true,
+            user_data: savedUser
+        };
     } catch (error) {
         const err = error as Error;
         throw new Error(`Error saving user: ${err.message}`);
     }
-}
+};
 
 
 function generateOtp(): string {

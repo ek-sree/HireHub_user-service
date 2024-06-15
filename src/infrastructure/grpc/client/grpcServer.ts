@@ -20,8 +20,9 @@ const userProto = protoDescription.user;
 const server = new grpc.Server();
 server.addService(userProto.UserService.service,{
     RegisterUser: userController.registerUser,
-    VerifyOtp: userController.verifyOtp
-    // LoginUser: userController.loginUser,
+    VerifyOtp: userController.verifyOtp,
+    ResendOtp: userController.ResendOtp,
+    Login: userController.loginUser,
 });
 
 const startGrpcServer = ()=>{

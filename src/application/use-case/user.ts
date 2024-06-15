@@ -1,7 +1,7 @@
 import { IUser } from "../../domain/entities/IUser";
-import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { UserRepository } from "../../domain/repositories/UserRepository";
-
+import { generateOtp } from "../../utils/generateOtp";
+import { sendOtpEmail } from "../../utils/emailVerification";
 
 const userRepo = new UserRepository();
 
@@ -15,7 +15,7 @@ export const registerUser = async ( userData: IUser): Promise<any> => {
         const otp = generateOtp();
         console.log("this is generated otppp",otp);
         
-        await sendOtpToUser(userData.email, otp); 
+        await sendOtpEmail(userData.email, otp); 
         return {message:"Success", success: true, otp, user_data: userData };
     }
 };
@@ -24,8 +24,6 @@ export const verifyOtp = async (userData: IUser): Promise<any> => {
     try {
         const savedUser = await userRepo.save(userData);
         console.log("ready to send success message", savedUser);
-        
-        // Return the saved user data along with the success message
         return {
             message: "User data saved successfully",
             success: true,
@@ -37,11 +35,25 @@ export const verifyOtp = async (userData: IUser): Promise<any> => {
     }
 };
 
-
-function generateOtp(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+export const resendOtp = async(email: string): Promise<any> =>{
+    try {
+        console.log("Redend otp", email);
+        const otp = generateOtp()
+        await sendOtpEmail(email, otp)
+        return {succes: true, newOtp:otp}
+    } catch (error) {
+        const err = error as Error;
+        throw new Error(`Error saving user: ${err.message}`);
+    }
 }
 
-async function sendOtpToUser(email: string, otp: string): Promise<void> {
-    console.log(`Sending OTP ${otp} to email ${email}`);
+
+export const loginUser = async(email: string, password: string): Promise<any> =>{
+    try {
+        const userExist = await userRepo.checkUser(email,password)
+        
+    } catch (error) {
+        
+    }
 }
+

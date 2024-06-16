@@ -6,18 +6,23 @@ import { sendOtpEmail } from "../../utils/emailVerification";
 const userRepo = new UserRepository();
 
 export const registerUser = async ( userData: IUser): Promise<any> => {
-    
-    const existingUser = await userRepo.findByEmail(userData.email);
-    if (existingUser) {
-        return { success: false, message: "Email already exists" };
-    } else {
-        console.log("no user found");
-        const otp = generateOtp();
-        console.log("this is generated otppp",otp);
-        
-        await sendOtpEmail(userData.email, otp); 
-        return {message:"Success", success: true, otp, user_data: userData };
+    try {
+        const existingUser = await userRepo.findByEmail(userData.email);
+        if (existingUser) {
+            return { success: false, message: "Email already exists" };
+        } else {
+            console.log("no user found");
+            const otp = generateOtp();
+            console.log("this is generated otppp",otp);
+            
+            await sendOtpEmail(userData.email, otp); 
+            return {message:"Success", success: true, otp, user_data: userData };
+        }
+    } catch (error) {
+        const err = error as Error;
+        throw new Error(`Error saving user: ${err.message}`);
     }
+   
 };
 
 export const verifyOtp = async (userData: IUser): Promise<any> => {
@@ -50,10 +55,12 @@ export const resendOtp = async(email: string): Promise<any> =>{
 
 export const loginUser = async(email: string, password: string): Promise<any> =>{
     try {
-        const userExist = await userRepo.checkUser(email,password)
-        
+        const result = await userRepo.checkUser(email,password)
+        console.log("Check user responseeeeee", result);
+        return result
     } catch (error) {
-        
+        const err = error as Error;
+        throw new Error(`Error saving user: ${err.message}`);
     }
 }
 

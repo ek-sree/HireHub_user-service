@@ -48,7 +48,9 @@ export const userController = {
 
     loginUser: async(call:any, callback: any)=>{
         try {
-            const result = await loginUser( call.request);
+            const { email, password} = call.request
+            const result = await loginUser(email, password);
+            console.log("Login check from controller", result);       
             callback(null, result);
         } catch (error) {
             const err = error as Error;
@@ -57,6 +59,7 @@ export const userController = {
                message:err.message,
             },null); 
            }
-        }
     }
-}
+    
+ }
+

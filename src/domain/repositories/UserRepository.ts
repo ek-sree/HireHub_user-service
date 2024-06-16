@@ -28,20 +28,27 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async checkUser(email: string, password: string): Promise<{ success: boolean, user?: IUser }> {
+    async checkUser(email: string, password: string): Promise<{ success: boolean, message: string, user_data?: IUser }> {
         try {
-            const user = await this.findByEmail(email);
-            if (!user) {
-                return { success: false };
+            const user_data = await User.findOne({ email }).exec();
+            if (!user_data) {
+                return { success: false, message: "Email incorrect" };
             }
-            const isPasswordMatch = await bcrypt.compare(password, user.password);
+    
+            const isPasswordMatch = await bcrypt.compare(password, user_data.password);
             if (!isPasswordMatch) {
-                return { success: false };
+                return { success: false, message: "Password incorrect" };
             }
-            return { success: true, user };
+    
+            if (user_data.status !== true) {
+                return { success: false, message: "Your account is blocked" };
+            }
+    
+            return { success: true, message: "User found", user_data };
         } catch (error) {
             const err = error as Error;
             throw new Error(`Error finding user by email and password: ${err.message}`);
         }
     }
+    
 }

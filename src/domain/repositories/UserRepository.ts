@@ -17,10 +17,16 @@ export class UserRepository implements IUserRepository {
 
     async save(user: IUser): Promise<IUser> {
         try {
+            console.log("sasasasdasd", user);
+            
             const hashedPassword = await bcrypt.hash(user.password, 10);
+            console.log("hash0", hashedPassword);
+            
             const userWithHashedPassword = { ...user, password: hashedPassword };
             const newUser = new User(userWithHashedPassword);
             await newUser.save();
+            console.log("saved and return", newUser);
+            
             return newUser;
         } catch (error) {
             const err = error as Error;

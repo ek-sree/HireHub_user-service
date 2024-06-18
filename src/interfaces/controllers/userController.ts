@@ -1,4 +1,4 @@
-import { registerUser, verifyOtp, resendOtp, loginUser } from "../../application/use-case/user";
+import { registerUser, verifyOtp, resendOtp, loginUser, loginWithgoogle } from "../../application/use-case/user";
 import * as grpc from '@grpc/grpc-js'
 
 
@@ -52,6 +52,21 @@ export const userController = {
             const result = await loginUser(email, password);
             console.log("Login check from controller", result);       
             callback(null, result);
+        } catch (error) {
+            const err = error as Error;
+            callback({
+               code:grpc.status.INTERNAL,
+               message:err.message,
+            },null); 
+           }
+    },
+
+    loginWithGoogle: async(call: any, callback: any) => {
+        try {
+            const credential = call.request;
+            const response = await loginWithgoogle(credential)
+            console.log("res from google logged", response);
+            callback(null,response)
         } catch (error) {
             const err = error as Error;
             callback({

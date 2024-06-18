@@ -1,8 +1,9 @@
 export interface IUser {
     email: string;
     name: string;
-    phone: string;
+    phone?: string;
     password: string;
+    googleId?: string;
     isAdmin?:boolean;
     coverphoto?:string;
     education?:string[];

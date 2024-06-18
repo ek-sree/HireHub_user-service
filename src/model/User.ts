@@ -16,11 +16,14 @@ const userSchema: Schema = new Schema({
     },
     phone:{
         type: Number,
-        required: true
+        
     },
     password:{
         type: String,
         required: true
+    },
+    googleId: {
+        type: String,
     },
     isAdmin:{
         type:Boolean,

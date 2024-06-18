@@ -7,7 +7,8 @@ const config = {
     jwtSecret: process.env.JWT_SECRET || 'your-secret-key',
     grpcPort: process.env.GRPC_PORT || 50051,
     EMAIL: process.env.EMAIL_NODEMAILER,
-    EMAIL_PASSWORD: process.env.PASSWORD_NODEMAILER
+    EMAIL_PASSWORD: process.env.PASSWORD_NODEMAILER,
+    CLIENT_ID: process.env.GOOGLE_CLIENT_ID
 };
 
 export default config;

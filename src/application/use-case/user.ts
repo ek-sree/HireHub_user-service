@@ -105,3 +105,26 @@ console.log("saved user details",user);
         throw new Error(`Error logging in with Google: ${err.message}`);
     }
 };
+
+export const fetUsers = async () => {
+    try {
+       let user =  await userRepo.getUsers()
+       
+       if(!user){
+        return { success : false, message:"no data found" }
+       }
+       const user_data = user.map((user: any) => {
+        return {
+            _id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            status: user.status
+        }
+       })
+        return { success: true, user_data }
+    } catch (error) {
+        const err = error as Error;
+        throw new Error(`Error logging in with Google: ${err.message}`);
+    }
+}

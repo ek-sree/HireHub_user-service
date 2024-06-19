@@ -1,7 +1,7 @@
 import express from 'express';
 import config from '../config';
 import { connectToDatabase } from '../database/mongodb';
-import { connectToRabbitMQ } from '../mq/rabbitmq';
+import { connectToRabbitMQ } from '../mq/rabbitMQconfig';
 import { startGrpcServer } from '../grpc/client/grpcServer';
 
 

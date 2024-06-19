@@ -23,7 +23,8 @@ server.addService(userProto.UserService.service,{
     VerifyOtp: userController.verifyOtp,
     ResendOtp: userController.ResendOtp,
     Login: userController.loginUser,
-    LoginWithGoogle: userController.loginWithGoogle
+    LoginWithGoogle: userController.loginWithGoogle,
+    GetAllUsers: userController.fetchedUserData
 });
 
 const startGrpcServer = ()=>{

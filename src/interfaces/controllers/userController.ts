@@ -1,5 +1,6 @@
-import { registerUser, verifyOtp, resendOtp, loginUser, loginWithgoogle } from "../../application/use-case/user";
+import { registerUser, verifyOtp, resendOtp, loginUser, loginWithgoogle, fetUsers } from "../../application/use-case/user";
 import * as grpc from '@grpc/grpc-js'
+// import { publishUsersToQueue } from "../../infrastructure/mq/rabbitMqService";
 
 
 
@@ -67,6 +68,23 @@ export const userController = {
             const response = await loginWithgoogle(credential)
             console.log("res from google logged", response);
             callback(null,response)
+        } catch (error) {
+            const err = error as Error;
+            callback({
+               code:grpc.status.INTERNAL,
+               message:err.message,
+            },null); 
+           }
+    },
+
+     fetchedUserData: async (call: any , callback: any) => {
+        try {
+            console.log("gettinggg get user");
+            
+            const result = await fetUsers();
+            console.log("res", result);
+            
+            callback(null, result)
         } catch (error) {
             const err = error as Error;
             callback({

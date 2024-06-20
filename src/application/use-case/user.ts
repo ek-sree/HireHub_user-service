@@ -125,6 +125,6 @@ export const fetUsers = async () => {
         return { success: true, user_data }
     } catch (error) {
         const err = error as Error;
-        throw new Error(`Error logging in with Google: ${err.message}`);
+        throw new Error(`Error finding user details: ${err.message}`);
     }
 }

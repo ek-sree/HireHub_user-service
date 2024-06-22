@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { IUser } from "../domain/entities/IUser";
 
-
+//@ts-ignore
 export interface IUserDocument extends IUser, Document {}
 
 const userSchema: Schema = new Schema({
@@ -22,9 +22,9 @@ const userSchema: Schema = new Schema({
         type: String,
         required: true
     },
-    googleId: {
-        type: String,
-    },
+    // googleId: {
+    //     type: String,
+    // },
     isAdmin:{
         type:Boolean,
         default: false
@@ -43,7 +43,7 @@ const userSchema: Schema = new Schema({
     },
     status:{
         type:Boolean,
-        default:true
+        default:false
     },
     resume:{
         type:Array,

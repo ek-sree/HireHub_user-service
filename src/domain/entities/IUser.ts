@@ -1,9 +1,10 @@
 export interface IUser {
+    _id?:string;
     email: string;
     name: string;
     phone?: string;
     password: string;
-    googleId?: string;
+    // googleId?: string;
     isAdmin?:boolean;
     coverphoto?:string;
     education?:string[];

@@ -23,16 +23,21 @@ export class UserRepository implements IUserRepository {
             console.log("hash0", hashedPassword);
             
             const userWithHashedPassword = { ...user, password: hashedPassword };
-            const newUser = new User(userWithHashedPassword);
+            const { _id, ...userWithoutId } = userWithHashedPassword;
+            const newUser = new User(userWithoutId);
+            console.log("user ethiyoo", newUser);
+            
             await newUser.save();
             console.log("saved and return", newUser);
             
             return newUser;
         } catch (error) {
             const err = error as Error;
+            console.error("Error saving user:", err);
             throw new Error(`Error saving user: ${err.message}`);
         }
     }
+    
 
     async checkUser(email: string, password: string): Promise<{ success: boolean, message: string, user_data?: IUser }> {
         try {
@@ -46,7 +51,7 @@ export class UserRepository implements IUserRepository {
                 return { success: false, message: "Password incorrect" };
             }
     
-            if (user_data.status !== true) {
+            if (user_data.status === true) {
                 return { success: false, message: "Your account is blocked" };
             }
     

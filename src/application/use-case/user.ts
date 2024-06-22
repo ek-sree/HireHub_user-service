@@ -5,126 +5,144 @@ import { sendOtpEmail } from "../../utils/emailVerification";
 import { OAuth2Client } from 'google-auth-library';
 import config from "../../infrastructure/config";
 
+class UserService {
+    private userRepo: UserRepository;
+    private client: OAuth2Client;
 
-const userRepo = new UserRepository();
+    constructor() {
+        this.userRepo = new UserRepository();
+        this.client = new OAuth2Client(config.CLIENT_ID);
+    }
 
-const client = new OAuth2Client(config.CLIENT_ID)
+    async registerUser(userData: IUser): Promise<any> {
+        try {
+            const existingUser = await this.userRepo.findByEmail(userData.email);
+            if (existingUser) {
+                return { success: false, message: "Email already exists" };
+            } else {
+                console.log("no user found");
+                const otp = generateOtp();
+                console.log("this is generated otppp", otp);
 
-export const registerUser = async ( userData: IUser): Promise<any> => {
-    try {
-        const existingUser = await userRepo.findByEmail(userData.email);
-        if (existingUser) {
-            return { success: false, message: "Email already exists" };
-        } else {
-            console.log("no user found");
+                await sendOtpEmail(userData.email, otp);
+
+                return { message: "Success", success: true, otp, user_data: userData };
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error saving user: ${error.message}`);
+            }
+            throw error;
+        }
+    }
+
+    async verifyOtp(userData: IUser): Promise<any> {
+        try {
+            console.log("isecase", userData);
+
+            const savedUser = await this.userRepo.save(userData);
+            console.log("ready to send success message", savedUser);
+            return {
+                message: "User data saved successfully",
+                success: true,
+                user_data: savedUser
+            };
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error saving user: ${error.message}`);
+            }
+            throw error;
+        }
+    }
+
+    async resendOtp(email: string): Promise<any> {
+        try {
+            console.log("Redend otp", email);
             const otp = generateOtp();
-            console.log("this is generated otppp",otp);
-            
-            await sendOtpEmail(userData.email, otp); 
-            return {message:"Success", success: true, otp, user_data: userData };
+            await sendOtpEmail(email, otp);
+            return { success: true, newOtp: otp };
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error resending OTP: ${error.message}`);
+            }
+            throw error;
         }
-    } catch (error) {
-        const err = error as Error;
-        throw new Error(`Error saving user: ${err.message}`);
     }
-   
-};
 
-export const verifyOtp = async (userData: IUser): Promise<any> => {
-    try {
-        console.log("isecase", userData);
-        
-        const savedUser = await userRepo.save(userData);
-        console.log("ready to send success message", savedUser);
-        return {
-            message: "User data saved successfully",
-            success: true,
-            user_data: savedUser
-        };
-    } catch (error) {
-        const err = error as Error;
-        throw new Error(`Error saving user: ${err.message}`);
+    async loginUser(email: string, password: string): Promise<any> {
+        try {
+            const result = await this.userRepo.checkUser(email, password);
+            console.log("Check user responseeeeee", result);
+            return result;
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error logging in: ${error.message}`);
+            }
+            throw error;
+        }
     }
-};
 
-export const resendOtp = async(email: string): Promise<any> =>{
-    try {
-        console.log("Redend otp", email);
-        const otp = generateOtp()
-        await sendOtpEmail(email, otp)
-        return {succes: true, newOtp:otp}
-    } catch (error) {
-        const err = error as Error;
-        throw new Error(`Error saving user: ${err.message}`);
+    async loginWithGoogle(credential: any): Promise<any> {
+        try {
+            const ticket = await this.client.verifyIdToken({
+                idToken: credential.credential,
+                audience: config.CLIENT_ID,
+            });
+
+            const payload = ticket.getPayload();
+            if (!payload) throw new Error('Invalid Google credentials');
+            console.log("payload", payload);
+
+            const email = payload.email;
+            const name = payload.name;
+
+            if (!email) throw new Error('Email not available in Google credentials');
+
+            let user = await this.userRepo.findByEmail(email);
+            console.log("google auth", user);
+
+            if (!user) {
+                user = await this.userRepo.save({
+                    email,
+                    name,
+                    password: 'defaultpassword',
+                } as IUser);
+            }
+            console.log("saved user details", user);
+
+            return { success: true, user_data: user };
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error logging in with Google: ${error.message}`);
+            }
+            throw error;
+        }
+    }
+
+    async fetchUsers(): Promise<any> {
+        try {
+            let users = await this.userRepo.getUsers();
+
+            if (!users) {
+                return { success: false, message: "no data found" };
+            }
+            const user_data = users.map((user: any) => {
+                return {
+                    _id: user._id.toString(),
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    status: user.status
+                };
+            });
+            return { success: true, user_data };
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error finding user details: ${error.message}`);
+            }
+            throw error;
+        }
     }
 }
 
-
-export const loginUser = async(email: string, password: string): Promise<any> =>{
-    try {
-        const result = await userRepo.checkUser(email,password)
-        console.log("Check user responseeeeee", result);
-        return result
-    } catch (error) {
-        const err = error as Error;
-        throw new Error(`Error saving user: ${err.message}`);
-    }
-}
-
-export const loginWithgoogle = async (credential: any): Promise<any> => {
-    try {
-        const ticket = await client.verifyIdToken({
-            idToken: credential.credential,
-            audience: config.CLIENT_ID,
-        });
-
-        const payload = ticket.getPayload();
-        if (!payload) throw new Error('Invalid Google credentials');
-console.log("payload",payload);
-
-        const  email = payload.email;
-        const name  = payload.name;
-
-        if(!email) throw new Error('Email not available in Google credentials');
-
-        let user = await userRepo.findByEmail(email);
-        console.log("google auth", user);
-        
-        if (!user) {
-            user = await userRepo.save({
-                email,
-                name,
-                password: 'defaultpassword', 
-            } as IUser);
-        }
-console.log("saved user details",user);
-
-        return { success: true, user_data: user };
-    } catch (error) {
-        const err = error as Error;
-        throw new Error(`Error logging in with Google: ${err.message}`);
-    }
-};
-
-export const fetUsers = async () => {
-    try {
-       let user =  await userRepo.getUsers()
-       
-       if(!user){
-        return { success : false, message:"no data found" }
-       }
-       const user_data = user.map((user: any) => {
-        return {
-            _id: user._id.toString(),
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            status: user.status
-        }
-       })
-        return { success: true, user_data }
-    } catch (error) {
-        const err = error as Error;
-        throw new Error(`Error finding user details: ${err.message}`);
-    }
-}
+export { UserService };

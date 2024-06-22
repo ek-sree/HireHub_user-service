@@ -1,98 +1,88 @@
-import { registerUser, verifyOtp, resendOtp, loginUser, loginWithgoogle, fetUsers } from "../../application/use-case/user";
-import * as grpc from '@grpc/grpc-js'
-// import { publishUsersToQueue } from "../../infrastructure/mq/rabbitMqService";
+import * as grpc from '@grpc/grpc-js';
+import { UserService } from '../../application/use-case/user'
 
-
+const userService = new UserService();
 
 export const userController = {
-    registerUser: async(call: any, callback:any)=>{
+    registerUser: async (call: any, callback: any) => {
         try {
-            const result = await registerUser( call.request);
+            const result = await userService.registerUser(call.request);
             callback(null, result);
         } catch (error) {
-            const err = error as Error;
-            callback({
-                code: grpc.status.INTERNAL,
-                message:err.message,
-            },null);
+            if (error instanceof Error) {
+                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+            } else {
+                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
+            }
         }
     },
-    verifyOtp: async(call: any, callback:any)=>{
+    verifyOtp: async (call: any, callback: any) => {
         try {
-            console.log("guess data from verifyOtp",call.request);
-            const result= await verifyOtp(call.request.user_data);
-            console.log("hehehehe", result);
+            console.log("guess data from verifyOtp", call.request);
+            const result = await userService.verifyOtp(call.request.user_data);
+            console.log("otp resss", result);
             callback(null, result);
         } catch (error) {
-         const err = error as Error;
-         callback({
-            code:grpc.status.INTERNAL,
-            message:err.message,
-         },null);   
+            if (error instanceof Error) {
+                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+            } else {
+                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
+            }
         }
     },
-
-    ResendOtp: async(call: any, callback: any)=>{
+    resendOtp: async (call: any, callback: any) => {
         try {
-            const result = await resendOtp(call.request.email)
-            console.log("safdfa",result);
-            
-            callback(null, result)
-        } catch (error) {
-            const err = error as Error;
-         callback({
-            code:grpc.status.INTERNAL,
-            message:err.message,
-         },null); 
-        }
-    },
-
-    loginUser: async(call:any, callback: any)=>{
-        try {
-            const { email, password} = call.request
-            const result = await loginUser(email, password);
-            console.log("Login check from controller", result);       
+            const result = await userService.resendOtp(call.request.email);
+            console.log("safdfa", result);
             callback(null, result);
         } catch (error) {
-            const err = error as Error;
-            callback({
-               code:grpc.status.INTERNAL,
-               message:err.message,
-            },null); 
-           }
+            if (error instanceof Error) {
+                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+            } else {
+                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
+            }
+        }
     },
-
-    loginWithGoogle: async(call: any, callback: any) => {
+    loginUser: async (call: any, callback: any) => {
+        try {
+            const { email, password } = call.request;
+            const result = await userService.loginUser(email, password);
+            console.log("Login check from controller", result);
+            callback(null, result);
+        } catch (error) {
+            if (error instanceof Error) {
+                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+            } else {
+                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
+            }
+        }
+    },
+    loginWithGoogle: async (call: any, callback: any) => {
         try {
             const credential = call.request;
-            const response = await loginWithgoogle(credential)
+            const response = await userService.loginWithGoogle(credential);
             console.log("res from google logged", response);
-            callback(null,response)
+            callback(null, response);
         } catch (error) {
-            const err = error as Error;
-            callback({
-               code:grpc.status.INTERNAL,
-               message:err.message,
-            },null); 
-           }
+            if (error instanceof Error) {
+                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+            } else {
+                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
+            }
+        }
     },
-
-     fetchedUserData: async (call: any , callback: any) => {
+    fetchedUserData: async (call: any, callback: any) => {
         try {
             console.log("gettinggg get user");
-            
-            const result = await fetUsers();
+            const result = await userService.fetchUsers();
             console.log("res", result);
-            
-            callback(null, result)
+            callback(null, result);
         } catch (error) {
-            const err = error as Error;
-            callback({
-               code:grpc.status.INTERNAL,
-               message:err.message,
-            },null); 
-           }
+            if (error instanceof Error) {
+                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+            } else {
+                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
+            }
+        }
     }
-    
- }
-
+};

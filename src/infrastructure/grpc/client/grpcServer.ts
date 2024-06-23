@@ -19,12 +19,12 @@ const userProto = protoDescription.user;
 
 const server = new grpc.Server();
 server.addService(userProto.UserService.service, {
-    RegisterUser: userController.registerUser,
-    VerifyOtp: userController.verifyOtp,
-    ResendOtp: userController.resendOtp,
-    Login: userController.loginUser,
-    LoginWithGoogle: userController.loginWithGoogle,
-    GetAllUsers: userController.fetchedUserData
+    RegisterUser: userController.registerUser.bind(userController),
+    VerifyOtp: userController.verifyOtp.bind(userController),
+    ResendOtp: userController.resendOtp.bind(userController),
+    Login: userController.loginUser.bind(userController),
+    LoginWithGoogle: userController.loginWithGoogle.bind(userController),
+    GetAllUsers: userController.fetchedUserData.bind(userController)
 });
 
 const startGrpcServer = () => {
@@ -35,8 +35,8 @@ const startGrpcServer = () => {
             return;
         } else {
             console.log(`gRpc server running at http://0.0.0.0:${bindPort}`);
-       
         }
-    })
+    });
 };
-export { startGrpcServer }
+
+export { startGrpcServer };

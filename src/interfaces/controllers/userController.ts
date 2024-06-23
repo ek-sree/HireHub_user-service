@@ -1,88 +1,68 @@
-import * as grpc from '@grpc/grpc-js';
-import { UserService } from '../../application/use-case/user'
+import { UserService } from '../../application/use-case/user';
+import grpcErrorHandler from '../middleware/grpcErrorHandler';
 
-const userService = new UserService();
+class UserController {
+    private userService: UserService;
 
-export const userController = {
-    registerUser: async (call: any, callback: any) => {
+    constructor() {
+        this.userService = new UserService();
+    }
+
+    async registerUser(call: any, callback: any) {
         try {
-            const result = await userService.registerUser(call.request);
+            const result = await this.userService.registerUser(call.request);
             callback(null, result);
         } catch (error) {
-            if (error instanceof Error) {
-                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
-            } else {
-                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
-            }
-        }
-    },
-    verifyOtp: async (call: any, callback: any) => {
-        try {
-            console.log("guess data from verifyOtp", call.request);
-            const result = await userService.verifyOtp(call.request.user_data);
-            console.log("otp resss", result);
-            callback(null, result);
-        } catch (error) {
-            if (error instanceof Error) {
-                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
-            } else {
-                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
-            }
-        }
-    },
-    resendOtp: async (call: any, callback: any) => {
-        try {
-            const result = await userService.resendOtp(call.request.email);
-            console.log("safdfa", result);
-            callback(null, result);
-        } catch (error) {
-            if (error instanceof Error) {
-                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
-            } else {
-                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
-            }
-        }
-    },
-    loginUser: async (call: any, callback: any) => {
-        try {
-            const { email, password } = call.request;
-            const result = await userService.loginUser(email, password);
-            console.log("Login check from controller", result);
-            callback(null, result);
-        } catch (error) {
-            if (error instanceof Error) {
-                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
-            } else {
-                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
-            }
-        }
-    },
-    loginWithGoogle: async (call: any, callback: any) => {
-        try {
-            const credential = call.request;
-            const response = await userService.loginWithGoogle(credential);
-            console.log("res from google logged", response);
-            callback(null, response);
-        } catch (error) {
-            if (error instanceof Error) {
-                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
-            } else {
-                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
-            }
-        }
-    },
-    fetchedUserData: async (call: any, callback: any) => {
-        try {
-            console.log("gettinggg get user");
-            const result = await userService.fetchUsers();
-            console.log("res", result);
-            callback(null, result);
-        } catch (error) {
-            if (error instanceof Error) {
-                callback({ code: grpc.status.INTERNAL, message: error.message }, null);
-            } else {
-                callback({ code: grpc.status.INTERNAL, message: 'Unknown error occurred' }, null);
-            }
+            grpcErrorHandler(callback, error); 
         }
     }
-};
+
+    async verifyOtp(call: any, callback: any) {
+        try {
+            const result = await this.userService.verifyOtp(call.request.user_data);
+            callback(null, result);
+        } catch (error) {
+            grpcErrorHandler(callback, error); 
+        }
+    }
+
+    async resendOtp(call: any, callback: any) {
+        try {
+            const result = await this.userService.resendOtp(call.request.email);
+            callback(null, result);
+        } catch (error) {
+            grpcErrorHandler(callback, error); 
+        }
+    }
+
+    async loginUser(call: any, callback: any) {
+        try {
+            const { email, password } = call.request;
+            const result = await this.userService.loginUser(email, password);
+            callback(null, result);
+        } catch (error) {
+            grpcErrorHandler(callback, error); 
+        }
+    }
+
+    async loginWithGoogle(call: any, callback: any) {
+        try {
+            const credential = call.request;
+            const response = await this.userService.loginWithGoogle(credential);
+            callback(null, response);
+        } catch (error) {
+            grpcErrorHandler(callback, error); 
+        }
+    }
+
+    async fetchedUserData(call: any, callback: any) {
+        try {
+            const result = await this.userService.fetchUsers();
+            callback(null, result);
+        } catch (error) {
+            grpcErrorHandler(callback, error); 
+        }
+    }
+}
+
+export const userController = new UserController();

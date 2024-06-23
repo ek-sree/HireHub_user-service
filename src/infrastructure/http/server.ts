@@ -9,7 +9,6 @@ const app = express();
 app.use(express.json());
 
 
-
 const startServer = async () => {
     try {
         await connectToDatabase();

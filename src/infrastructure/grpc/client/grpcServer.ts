@@ -3,10 +3,12 @@ import * as protoLoader from '@grpc/proto-loader';
 import path from 'path';
 import { userController } from '../../../interfaces/controllers/userController';
 import config from '../../config';
+import { adminController } from '../../../interfaces/controllers/adminController';
 
-const PROTO_PATH = path.resolve(__dirname, '../proto/user.proto');
+const USER_PROTO_PATH = path.resolve(__dirname, '../proto/user.proto');
+const ADMIN_PROTO_PATH = path.resolve(__dirname, '../proto/admin.proto');
 
-const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
+const userPackageDefinition = protoLoader.loadSync(USER_PROTO_PATH, {
     keepCase: true,
     longs: String,
     enums: String,
@@ -14,18 +16,35 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
     oneofs: true,
 });
 
-const protoDescription = grpc.loadPackageDefinition(packageDefinition) as any;
-const userProto = protoDescription.user;
+const adminPackageDefinition = protoLoader.loadSync(ADMIN_PROTO_PATH, {
+    keepCase: true,
+    longs: String,
+    enums: String,
+    defaults: true,
+    oneofs: true,
+});
+
+const userProtoDescription = grpc.loadPackageDefinition(userPackageDefinition) as any;
+const adminProtoDescription = grpc.loadPackageDefinition(adminPackageDefinition) as any;
+
+const userProto = userProtoDescription.user;
+const adminProto = adminProtoDescription.admin;
 
 const server = new grpc.Server();
+
+//userController
 server.addService(userProto.UserService.service, {
     RegisterUser: userController.registerUser.bind(userController),
     VerifyOtp: userController.verifyOtp.bind(userController),
     ResendOtp: userController.resendOtp.bind(userController),
     Login: userController.loginUser.bind(userController),
     LoginWithGoogle: userController.loginWithGoogle.bind(userController),
-    GetAllUsers: userController.fetchedUserData.bind(userController)
 });
+
+//adminController
+server.addService(adminProto.AdminService.service, {
+    Login: adminController.loginAdmin.bind(adminController)
+})
 
 const startGrpcServer = () => {
     const grpcPort = config.grpcPort;

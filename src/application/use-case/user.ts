@@ -119,30 +119,7 @@ class UserService {
         }
     }
 
-    async fetchUsers(): Promise<any> {
-        try {
-            let users = await this.userRepo.getUsers();
-
-            if (!users) {
-                return { success: false, message: "no data found" };
-            }
-            const user_data = users.map((user: any) => {
-                return {
-                    _id: user._id.toString(),
-                    name: user.name,
-                    email: user.email,
-                    phone: user.phone,
-                    status: user.status
-                };
-            });
-            return { success: true, user_data };
-        } catch (error) {
-            if (error instanceof Error) {
-                throw new Error(`Error finding user details: ${error.message}`);
-            }
-            throw error;
-        }
-    }
+    
 }
 
 export { UserService };

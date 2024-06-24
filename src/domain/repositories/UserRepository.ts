@@ -61,15 +61,5 @@ export class UserRepository implements IUserRepository {
             throw new Error(`Error finding user by email and password: ${err.message}`);
         }
     }
-
-    async getUsers(): Promise<IUser[]> {
-        try {
-            const users = await User.find().select('-password').exec();
-            return users;
-        } catch (error) {
-            const err = error as Error;
-            throw new Error(`Error fetching users: ${err.message}`);
-        }
-    }
     
 }

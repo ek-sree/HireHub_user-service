@@ -55,14 +55,7 @@ class UserController {
         }
     }
 
-    async fetchedUserData(call: any, callback: any) {
-        try {
-            const result = await this.userService.fetchUsers();
-            callback(null, result);
-        } catch (error) {
-            grpcErrorHandler(callback, error); 
-        }
-    }
+
 }
 
 export const userController = new UserController();

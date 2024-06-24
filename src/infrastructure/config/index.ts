@@ -8,7 +8,14 @@ const config = {
     grpcPort: process.env.GRPC_PORT || 50051,
     EMAIL: process.env.EMAIL_NODEMAILER,
     EMAIL_PASSWORD: process.env.PASSWORD_NODEMAILER,
-    CLIENT_ID: process.env.GOOGLE_CLIENT_ID
+    CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    rabbitMq_url: process.env.RABBITmq_url || '',
 };
+
+if (!config.rabbitMq_url) {
+    console.error('RABBITmq_url is not defined in environment variables.');
+    process.exit(1); 
+}
+
 
 export default config;

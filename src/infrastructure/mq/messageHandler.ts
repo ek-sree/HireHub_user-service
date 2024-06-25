@@ -14,7 +14,8 @@ export default class MessageHandler {
 
             case 'block-user':
                 response = await adminController .blockUser(data)   
-
+                break;
+                
             default:
                 response = { error: 'Operation not supported' };
                 break;

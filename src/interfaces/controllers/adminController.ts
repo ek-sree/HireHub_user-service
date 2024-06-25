@@ -27,13 +27,16 @@ class AdminController {
         }
     }
 
-    async blockUser(data: string) {
+    async blockUser(data: { userId: string }) {
         try {
             console.log("data for block", data);
-            const result = await this.adminService.blockedUser(data)
+            const result = await this.adminService.blockedUser(data.userId);
+            console.log("block user from controller.....1", result);
+
             return result;
         } catch (error) {
-            
+            console.error("Error blocking user:", error);
+            return { success: false, message: 'Error blocking user' };
         }
     }
 }

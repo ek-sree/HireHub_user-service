@@ -47,10 +47,12 @@ class AdminService {
 
     async blockedUser(userId: string): Promise<{success: boolean, message: string}> {
         try {
-            console.log("sent id for block",userId);
+            console.log("sent id for block", userId);
             
             const result = await this.adminRepo.blockUnblock(userId);
-            return result
+            console.log("block message.......", result);
+            
+            return result;
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(`Error blocking user: ${error.message}`);

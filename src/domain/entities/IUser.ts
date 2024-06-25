@@ -4,7 +4,6 @@ export interface IUser {
     name: string;
     phone?: string;
     password: string;
-    // googleId?: string;
     isAdmin?:boolean;
     coverphoto?:string;
     education?:string[];

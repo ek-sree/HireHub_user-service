@@ -18,12 +18,13 @@ class AdminController {
         }
     }
 
-    async fetchedUserData() {
+    async fetchedUserData(data: { page: number, limit: number }) {
+        const { page, limit } = data;
         try {
-            const result = await this.adminService.fetchUsers();
+            const result = await this.adminService.fetchUsers(page, limit);
             return result;
         } catch (error) {
-            console.log("error fetching all users", error);  
+            console.log("error fetching all users", error);
         }
     }
 

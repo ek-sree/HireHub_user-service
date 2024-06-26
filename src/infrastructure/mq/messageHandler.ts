@@ -8,7 +8,7 @@ export default class MessageHandler {
 
         switch (operation) {
             case 'get-all-users':
-                response = await adminController.fetchedUserData();
+                response = await adminController.fetchedUserData(data);
                 console.log("response of fetch user in message handler",response);
                 break;
 
@@ -21,7 +21,6 @@ export default class MessageHandler {
                 break;
         }
 
-        // Send the response back to the reply queue
         await RabbitMQClient.produce(response, correlationId, replyTo);
     }
 }

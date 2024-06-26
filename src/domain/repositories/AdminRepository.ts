@@ -24,15 +24,20 @@ export class AdminRepostory implements IAdminRepository {
         }
     }
 
-    async getUsers(): Promise<IUser[]> {
-        try {
-            const users = await User.find().select('-password').exec();
-            return users;
-        } catch (error) {
-            const err = error as Error;
-            throw new Error(`Error fetching users: ${err.message}`);
-        }
+
+
+async getUsers(page: number, limit: number): Promise<{ users: IUser[], totalUsers: number }> {
+    try {
+        const skip = (page - 1) * limit;
+        const users = await User.find().skip(skip).limit(limit).select('-password').exec();
+        const totalUsers = await User.countDocuments();
+        return { users, totalUsers };
+    } catch (error) {
+        const err = error as Error;
+        throw new Error(`Error fetching users: ${err.message}`);
     }
+}
+
 
     async blockUnblock(userId: string | { userId: string }): Promise<{ success: boolean; message: string }> {
         try {

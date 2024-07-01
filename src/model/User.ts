@@ -22,9 +22,6 @@ const userSchema: Schema = new Schema({
         type: String,
         required: true
     },
-    // googleId: {
-    //     type: String,
-    // },
     isAdmin:{
         type:Boolean,
         default: false

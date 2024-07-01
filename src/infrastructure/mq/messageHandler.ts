@@ -1,4 +1,3 @@
-// messageHandler.ts
 import RabbitMQClient from './client';
 import { adminController } from '../../interfaces/controllers/adminController';
 

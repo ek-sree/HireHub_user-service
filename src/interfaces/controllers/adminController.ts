@@ -40,6 +40,17 @@ class AdminController {
             return { success: false, message: 'Error blocking user' };
         }
     }
+
+    async searchUserList(data: { searchValue: string }) {
+       try {
+        const { searchValue } = data;
+        const result = await this.adminService.searchUser(searchValue)
+        return result;
+       } catch (error) {
+        console.error("Error blocking user:", error);
+        throw new Error("Error occured")
+    }
+    }
 }
 
 export const adminController = new AdminController();

@@ -1,4 +1,5 @@
 import { IAdmin } from "../../domain/entities/IAdmin";
+import { IUser } from "../../domain/entities/IUser";
 import { AdminRepostory } from "../../domain/repositories/AdminRepository";
 
 class AdminService {
@@ -57,6 +58,24 @@ async fetchUsers(page: number, limit: number): Promise<any> {
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(`Error blocking user: ${error.message}`);
+            }
+            throw error;
+        }
+    }
+
+    async searchUser(searchValue: string): Promise<{ success: boolean, message: string, users?: IUser[] | undefined }> {
+        try {
+            console.log("Constructed searchValue:", searchValue);
+
+            const users = await this.adminRepo.searchByName(searchValue);
+            if (!users || users.length === 0) {
+                return { success: false, message: "No user found" };
+            }
+            return { success: true, message: "User found", users: users };
+        } catch (error) {
+            console.log("Error occurred while searching user list", error);
+            if (error instanceof Error) {
+                throw new Error(`Error while searching user list: ${error.message}`);
             }
             throw error;
         }

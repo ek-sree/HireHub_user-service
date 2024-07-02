@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'; // Import mongoose
+import mongoose from 'mongoose';
 import { Admin } from "../../model/Admin";
 import { User } from "../../model/User";
 import { IAdmin } from "../entities/IAdmin";
@@ -24,20 +24,17 @@ export class AdminRepostory implements IAdminRepository {
         }
     }
 
-
-
-async getUsers(page: number, limit: number): Promise<{ users: IUser[], totalUsers: number }> {
-    try {
-        const skip = (page - 1) * limit;
-        const users = await User.find().skip(skip).limit(limit).select('-password').exec();
-        const totalUsers = await User.countDocuments();
-        return { users, totalUsers };
-    } catch (error) {
-        const err = error as Error;
-        throw new Error(`Error fetching users: ${err.message}`);
+    async getUsers(page: number, limit: number): Promise<{ users: IUser[], totalUsers: number }> {
+        try {
+            const skip = (page - 1) * limit;
+            const users = await User.find().skip(skip).limit(limit).select('-password').exec();
+            const totalUsers = await User.countDocuments();
+            return { users, totalUsers };
+        } catch (error) {
+            const err = error as Error;
+            throw new Error(`Error fetching users: ${err.message}`);
+        }
     }
-}
-
 
     async blockUnblock(userId: string | { userId: string }): Promise<{ success: boolean; message: string }> {
         try {
@@ -68,6 +65,28 @@ async getUsers(page: number, limit: number): Promise<{ users: IUser[], totalUser
             console.error("Error in blockUnblock:", error);
             const err = error as Error;
             throw new Error(`Error blocking or unblocking user: ${err.message}`);
+        }
+    }
+
+    async searchByName(searchValue: string): Promise<IUser[]> {
+        try {
+            console.log("searchValue type:", typeof searchValue);  
+            console.log("searchValue content:", searchValue);  
+    
+            if (typeof searchValue !== 'string') {
+                throw new Error("Invalid search value");
+            }
+    
+            const value = new RegExp(`^${searchValue}`, "i");
+            console.log("Constructed RegExp:", value);
+    
+            const users = await User.find({ name: value }).select("-password").exec();
+    
+            return users;
+        } catch (error) {
+            console.error("Error searching user:", error);
+            const err = error as Error;
+            throw new Error(`Error searching user list: ${err.message}`);
         }
     }
 }

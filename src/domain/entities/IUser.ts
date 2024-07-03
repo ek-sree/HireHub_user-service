@@ -11,5 +11,6 @@ export interface IUser {
     status?:boolean;
     resume?:string[];
     avatar?:string;
+    profileTitle?:string;
     created_at?:Date;
 }

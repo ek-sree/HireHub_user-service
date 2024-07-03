@@ -1,5 +1,6 @@
 import RabbitMQClient from './client';
 import { adminController } from '../../interfaces/controllers/adminController';
+import { userController } from '../../interfaces/controllers/userController';
 
 export default class MessageHandler {
     static async handle(operation: string, data: any, correlationId: string, replyTo: string) {
@@ -17,6 +18,10 @@ export default class MessageHandler {
 
             case 'search-user':
                 response = await adminController.searchUserList(data);
+                break;  
+                
+            case 'profile-title-add':
+                response = await userController.addNewProFileTitle(data);
                 break;    
                 
             default:

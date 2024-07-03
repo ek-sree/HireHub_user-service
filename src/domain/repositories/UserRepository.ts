@@ -61,5 +61,26 @@ export class UserRepository implements IUserRepository {
             throw new Error(`Error finding user by email and password: ${err.message}`);
         }
     }
+
+    async addTitle(email: string, title: string): Promise<{success: boolean, message: string, result?: string} > {
+        try {
+            console.log("emil for add title",email);
+            console.log("title for add title",title);
+            const user = await User.findOne({email})
+            if(!user){
+                return {success: false, message:"no user found"}
+            }
+            user.profileTitle = title;
+            const updateUser = await user.save()
+            if(!updateUser){
+                return {success: false, message:"can't add title right now!!"}
+            }
+            return{success:true, message:"Title added succesfullt", result:title}
+        } catch (error) {
+            console.log("error saving title",error);
+            const err = error as Error;
+            throw new Error(`Error saving Profile title${err.message}`);
+        }
+    }
     
 }

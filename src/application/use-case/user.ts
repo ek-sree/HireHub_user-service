@@ -119,7 +119,20 @@ class UserService {
         }
     }
 
-    
+    async addNewTitle(data: {email: string, title: string}): Promise<{success:boolean, message:string, result?: string}>{
+        try {
+            const {email, title} = data;
+            console.log("service data",email, title);
+            
+            const result = await this.userRepo.addTitle(email,title);
+            return result;
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error adding new title: ${error.message}`);
+            }
+            throw error;
+        }
+    }
 }
 
 export { UserService };

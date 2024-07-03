@@ -49,6 +49,9 @@ const userSchema: Schema = new Schema({
     avatar: {
         type: String
     },
+    profileTitle: {
+        type: String
+    },
     created_at:{
         type:Date,
         required:true,

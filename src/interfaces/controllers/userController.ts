@@ -55,7 +55,17 @@ class UserController {
         }
     }
 
-
+    async addNewProFileTitle(data: {data: {email:string, title: {title: string}}}){
+        try {
+            console.log("data in controller", data);
+            const { email, title } = data.data;
+            const result = await this.userService.addNewTitle({email, title: title.title});
+            return result;
+        } catch (error) {
+            console.error("Error adding title:", error);
+            throw new Error("Error occured")
+        }
+    }
 }
 
 export const userController = new UserController();

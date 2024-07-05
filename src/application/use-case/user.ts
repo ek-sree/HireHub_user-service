@@ -4,6 +4,7 @@ import { generateOtp } from "../../utils/generateOtp";
 import { sendOtpEmail } from "../../utils/emailVerification";
 import { OAuth2Client } from 'google-auth-library';
 import config from "../../infrastructure/config";
+import { IUserDetails, IUserInfo } from "../../domain/entities/IUserDetails";
 
 class UserService {
     private userRepo: UserRepository;
@@ -126,6 +127,92 @@ class UserService {
             
             const result = await this.userRepo.addTitle(email,title);
             return result;
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error adding new title: ${error.message}`);
+            }
+            throw error;
+        }
+    }
+
+    async updateDetails(data:{email: string, title: string, name: string}): Promise<{success: boolean, message:string, details?: IUserDetails}>{
+        try {
+            console.log("data form controller",data);
+            
+            const {email, name, title} = data;
+            const result = await this.userRepo.editDetails(email,name,title);
+            console.log(".......",name);
+            
+            if(!result) {
+                return {success: false, message:"cant edit details"};
+            }
+            const details = {
+                name: result.result?.name || '',
+                profileTitle: result.result?.profileTitle || ''
+            };
+            return {success: true, message:"details edited", details};
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error adding new title: ${error.message}`);
+            }
+            throw error;
+        }
+    }
+
+    async fetchUserDetails(data:{email: string}): Promise<{success: boolean, message:string, details?:IUserDetails}>{
+        try {
+            const { email } = data;
+        console.log("email", email);
+            
+            const result = await this.userRepo.findDetails(email)
+            if(!result.success){
+                return{success: false, message:"cant find details"}
+            }
+            return {success:true, message:"user found", details:result.result}
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error adding new title: ${error.message}`);
+            }
+            throw error
+        }
+    }
+
+    async fetchUserInfo(data:{email: string}): Promise<{success: boolean, message:string, info?:IUserInfo}>{
+        try {
+            const {email} = data;
+            const result = await this.userRepo.findUserInfo(email);
+            if(!result.success || !result.result){
+                return {success: false, message:"No info found"}
+            }
+            const info: IUserInfo = {
+                email: result.result.email,
+                phone: result.result.phone || '',
+                place: Array.isArray(result.result.place) ? result.result.place : [result.result.place || ''],
+            education: Array.isArray(result.result.education) ? result.result.education : [result.result.education || '']
+            };
+            return {success: true, message:"User info found", info}
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error adding new title: ${error.message}`);
+            }
+            throw error 
+        }
+    }
+
+    async editUserInfo(data: { email: string, phone: string, education: string[], place: string[] }): Promise<{ success: boolean, message: string, data?: IUserInfo }> {
+        try {
+            const { email, phone, education, place } = data;
+            console.log("in service info....", email, phone, education, place);
+            
+            const result = await this.userRepo.editInfo({ email, phone, education, place });
+            const updatedUserInfo: IUserInfo = {
+                email: result.data?.email || '',
+                phone: result.data?.phone || '',
+                place: result.data?.place || [],
+                education: result.data?.education || []
+            };
+    
+            return { success: true, message: "User info updated successfully", data: updatedUserInfo };
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(`Error adding new title: ${error.message}`);

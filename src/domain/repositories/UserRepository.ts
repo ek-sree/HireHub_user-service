@@ -2,6 +2,7 @@ import { IUserRepository } from './IUserRepository';
 import { IUser } from '../entities/IUser';
 import { User } from '../../model/User';
 import bcrypt from 'bcrypt';
+import { IUserDetails, IUserInfo } from '../entities/IUserDetails';
 
 export class UserRepository implements IUserRepository {
 
@@ -83,4 +84,102 @@ export class UserRepository implements IUserRepository {
         }
     }
     
+    async editDetails (email: string, name: string, title: string): Promise<{success: boolean, message: string, result?: { name: string, profileTitle: string }}> {
+        try {
+            console.log("db repo",email);
+            
+            const user = await User.findOne({email});
+            if(!user){
+                console.log("User doesnt found");
+                return {success: false, message:"User not found"};
+            }
+            console.log("name", name);
+            
+            user.name = name;
+            user.profileTitle = title || '';
+            const updatedUser = await user.save();
+            return {success: true, message:"details updated", result: { name: updatedUser.name, profileTitle: updatedUser.profileTitle || ''}}
+        } catch (error) {
+            console.log("error editing details",error);
+            const err = error as Error;
+            throw new Error(`Error editing user details${err.message}`);
+        }
+    }
+
+    async findDetails(email: string): Promise<{success:boolean,message:string, result?:IUserDetails}>{
+        try {
+            const user = await User.findOne({email});
+            if(!user){
+                return {success: false, message: "user Not found"}
+            }
+            const name = user.name;
+            const title = user.profileTitle;
+            const result = {name, title};
+            console.log("repooo res",result);
+            
+            return {success: true, message:"Found data", result}
+        } catch (error) {
+            console.log("error fetching details",error);
+            const err = error as Error;
+            throw new Error(`Error fetchinguser details${err.message}`);
+        }
+    }
+
+    async findUserInfo(email:string): Promise<{success: boolean, message:string, result?:IUserInfo}>{
+        try {
+            const user = await User.findOne({email});
+            if(!user){
+                return {success: false, message:"User not found"};
+            }
+            const userInfo: IUserInfo = {
+                email: user.email,
+                phone: user.phone || '',
+                place: user.place || [], 
+            education: user.education || []
+            } 
+            
+            
+            return {success: true, message:"Found user", result:userInfo}
+        } catch (error) {
+            console.log("error fetching user infos",error);
+            const err = error as Error;
+            throw new Error(`Error fetchinguser infos ${err.message}`);
+        }
+    }
+
+    async editInfo(userInfo: IUserInfo): Promise<{ success: boolean, message: string, data?: IUserInfo }> {
+        try {
+            console.log("repo userinfo", userInfo);
+            const { email, phone, education, place } = userInfo;
+            
+            const user = await User.findOne({ email });
+            if (!user) {
+                return { success: false, message: "User not found" };
+            }
+            
+            if (phone !== undefined) {
+                user.phone = phone;
+            }
+            if (education) {
+                user.education = education.length ? education : []; 
+            }
+            if (place) {
+                user.place = place.length ? place : [];  
+            }
+    
+            const updatedUser = await user.save();
+            const updatedUserInfo: IUserInfo = {
+                email: updatedUser.email,
+                phone: updatedUser.phone || '',
+                place: updatedUser.place || [],
+                education: updatedUser.education || []
+            };
+    
+            return { success: true, message: "User info updated successfully", data: updatedUserInfo };
+        } catch (error) {
+            console.log("error editing user infos", error);
+            const err = error as Error;
+            throw new Error(`Error editing user infos ${err.message}`);
+        }
+    }
 }

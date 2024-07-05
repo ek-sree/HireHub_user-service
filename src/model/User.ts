@@ -31,11 +31,14 @@ const userSchema: Schema = new Schema({
         
     },
     education:{
-        type:Array,
+        type:[String],
         default:[]
     },
+    place:{
+        type: [String],
+    },
     skills:{
-        type:Array,
+        type:[String],
         default:[]
     },
     status:{
@@ -43,7 +46,7 @@ const userSchema: Schema = new Schema({
         default:false
     },
     resume:{
-        type:Array,
+        type:[String],
         default:[]
     },
     avatar: {

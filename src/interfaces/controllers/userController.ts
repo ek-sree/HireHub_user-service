@@ -66,6 +66,57 @@ class UserController {
             throw new Error("Error occured")
         }
     }
+
+    async editDetails(data: { data: { email: string, title: string, name: string } }) {
+        try {
+            console.log("Received data for edit user details:", data);
+            const { email, title, name } = data.data;
+            console.log("Destructured values:", email, title, name);
+            
+            const result = await this.userService.updateDetails({ email, name, title });
+            console.log("Update details result:", result);
+            return result;
+        } catch (error) {
+            console.error("Error editing user details:", error);
+            throw new Error("Error occurred while editing user details");
+        }
+    }
+    
+    async fetchedDetails(data:{email:string}){
+        try {
+            console.log("sda...",data);
+            
+            const result = await this.userService.fetchUserDetails(data);
+            return result;
+        } catch (error) {
+            console.error("Error fetching user details:", error);
+            throw new Error("Error occurred while fetching user details");
+        }
+    }
+
+    async fetchedUserInfo(data:{email:string}){
+        try {
+            const result = await this.userService.fetchUserInfo(data);
+            return result;
+        } catch (error) {
+            console.error("Error fetching user infos:", error);
+            throw new Error("Error occurred while fetching user infos");
+        }
+    }
+
+    async editedUserInfo(data: { data: { email: string, phone: string, education: string[], place: string[] } }){
+        try {
+            console.log("logging data controller", data);
+            const { email, phone, education, place } = data.data;
+            console.log("Destructured values:", email, phone, education, place);
+            
+            const result = await this.userService.editUserInfo({ email, phone, education, place });
+            return result;
+        } catch (error) {
+            console.error("Error edit user infos:", error);
+            throw new Error("Error occurred while edit user infos");
+        }
+    }
 }
 
 export const userController = new UserController();

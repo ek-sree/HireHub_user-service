@@ -7,6 +7,7 @@ export interface IUser {
     isAdmin?:boolean;
     coverphoto?:string;
     education?:string[];
+    place?:string[];
     skills?:string[];
     status?:boolean;
     resume?:string[];
@@ -14,3 +15,4 @@ export interface IUser {
     profileTitle?:string;
     created_at?:Date;
 }
+

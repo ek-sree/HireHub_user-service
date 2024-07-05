@@ -22,8 +22,24 @@ export default class MessageHandler {
                 
             case 'profile-title-add':
                 response = await userController.addNewProFileTitle(data);
-                break;    
+                break;
                 
+            case 'edit-details':
+                response = await userController.editDetails(data);
+                break;    
+            
+            case 'view-details':
+                response = await userController.fetchedDetails(data);
+                break;
+
+            case 'user-info':
+                response = await userController.fetchedUserInfo(data);
+                break; 
+                
+            case 'user-info-edit':
+                response = await userController.editedUserInfo(data);
+                break;    
+
             default:
                 response = { error: 'Operation not supported' };
                 break;

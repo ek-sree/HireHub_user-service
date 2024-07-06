@@ -215,7 +215,41 @@ class UserService {
             return { success: true, message: "User info updated successfully", data: updatedUserInfo };
         } catch (error) {
             if (error instanceof Error) {
-                throw new Error(`Error adding new title: ${error.message}`);
+                throw new Error(`Error editing user info: ${error.message}`);
+            }
+            throw error;
+        }
+    }
+
+    async addSkills(data:{email:string, skills:string[]}): Promise<{success: boolean, message:string, result?:string[]}>{
+        try {
+            console.log("rrrrrrrr",data);
+            
+            const {email, skills} = data;
+            const result = await this.userRepo.createSkills(email,{skills:{skills}});
+            if(!result){
+                return {success:false, message:"Cant add skills"};
+            }
+            return {success:true, message:"Skills added", result:result.data}
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error adding new skills: ${error.message}`);
+            }
+            throw error;
+        }
+    }
+
+    async fetchSkills(data:{email:string}):Promise<{success:boolean, message:string, skills?:string[]}>{
+        try {
+            const {email} = data;
+            const skills = await this.userRepo.findSkills(email)
+            if(!skills){
+                return {success:false, message:"Data not found"}
+            }
+            return {success:true, message:"data found", skills:skills.data}
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error fetching new skills: ${error.message}`);
             }
             throw error;
         }

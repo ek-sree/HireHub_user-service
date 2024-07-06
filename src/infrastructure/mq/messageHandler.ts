@@ -38,6 +38,14 @@ export default class MessageHandler {
                 
             case 'user-info-edit':
                 response = await userController.editedUserInfo(data);
+                break; 
+                
+            case 'add-user-skills':
+                response = await userController.addedUserSkills(data);
+                break;  
+                
+            case 'fetch-skills':
+                response = await userController.fetchedSkills(data);
                 break;    
 
             default:

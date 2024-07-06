@@ -182,4 +182,37 @@ export class UserRepository implements IUserRepository {
             throw new Error(`Error editing user infos ${err.message}`);
         }
     }
+
+    async createSkills(email:string, skills:{skills:{skills:string[]}}): Promise<{success: boolean, message:string, data?:string[]}>{
+        try {
+            console.log("email repo", email, skills.skills.skills,"-=-=-");
+            const user = await User.findOne({email});
+            if(!user){
+                return { success: false, message:"User not found"}
+            }
+            
+            user.skills = [...skills.skills.skills];
+            await user.save();
+            return { success: true, message:"add skills", data:user.skills}
+        } catch (error) {
+            console.log("error adding user skills", error);
+            const err = error as Error;
+            throw new Error(`Error adding user skills ${err.message}`);
+        }
+        }
+
+    async findSkills(email:string):Promise<{success:boolean, message:string, data?:string[]}>{
+        try {
+            const user = await User.findOne({email});
+            if(!user){
+                return {success: false, message:"user not found"};
+            }
+            const data = user.skills;
+            return {success: true, message:"Data found", data}
+        } catch (error) {
+            console.log("error fetching user skills", error);
+            const err = error as Error;
+            throw new Error(`Error fetching user skills ${err.message}`);
+        }
+    }
 }

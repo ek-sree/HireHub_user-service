@@ -117,6 +117,30 @@ class UserController {
             throw new Error("Error occurred while edit user infos");
         }
     }
+
+    async addedUserSkills(data:{email:string, skills:string[]}){
+        try {
+            console.log("dddddddd",data);
+            
+            const {email, skills} = data;
+            console.log("destructure", email, skills);
+            const result = await this.userService.addSkills({email,skills})
+            return result;
+        } catch (error) {
+            console.error("Error add user skills:", error);
+            throw new Error("Error occurred while adding user skills");
+        }
+    }
+
+    async fetchedSkills(data:{email:string}){
+        try {
+            const result = await this.userService.fetchSkills(data);
+            return result;
+        } catch (error) {
+            console.error("Error fetching user skills:", error);
+            throw new Error("Error occurred while fetching user skills");
+        }
+    }
 }
 
 export const userController = new UserController();

@@ -48,6 +48,10 @@ export default class MessageHandler {
                 response = await userController.fetchedSkills(data);
                 break;    
 
+            case 'user-skills-edit':
+                response = await userController.editedSkills(data);
+                break;    
+
             default:
                 response = { error: 'Operation not supported' };
                 break;

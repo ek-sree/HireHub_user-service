@@ -141,6 +141,18 @@ class UserController {
             throw new Error("Error occurred while fetching user skills");
         }
     }
+
+    async editedSkills(data:{email:string, skills:string[]}){
+        try {
+            const email = data.email;
+            const skills = data.skills;
+            const result = await this.userService.editSkills(email,skills)
+            return result;
+        } catch (error) {
+            console.error("Error editing user skills:", error);
+            throw new Error("Error occurred while editing user skills");
+        }
+    }
 }
 
 export const userController = new UserController();

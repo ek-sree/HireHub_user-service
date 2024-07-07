@@ -254,6 +254,21 @@ class UserService {
             throw error;
         }
     }
+
+    async editSkills(email:string, skills:string[]): Promise<{success:boolean, message:string, data?:string[]}>{
+        try {
+            const result = await this.userRepo.updateSkills(email,skills)
+            if(!result){
+                return {success:false, message:"Cant update user skills"}
+            }
+            return {success:true, message:"user skill updated",data:result.data}
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error editing new skills: ${error.message}`);
+            }
+            throw error;
+        }
+    }
 }
 
 export { UserService };

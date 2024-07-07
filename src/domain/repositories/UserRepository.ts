@@ -192,8 +192,8 @@ export class UserRepository implements IUserRepository {
             }
             
             user.skills = [...skills.skills.skills];
-            await user.save();
-            return { success: true, message:"add skills", data:user.skills}
+            const updatedUser = await user.save();
+            return { success: true, message:"add skills", data:updatedUser.skills}
         } catch (error) {
             console.log("error adding user skills", error);
             const err = error as Error;
@@ -213,6 +213,22 @@ export class UserRepository implements IUserRepository {
             console.log("error fetching user skills", error);
             const err = error as Error;
             throw new Error(`Error fetching user skills ${err.message}`);
+        }
+    }
+
+    async updateSkills(email:string, skills:string[]): Promise<{success: boolean, message:string, data?:string[]}>{
+        try {
+            const user = await User.findOne({email});
+            if(!user){
+                return{success:false, message:"User not found"}
+            }
+            user.skills = skills; 
+            const updatedUser = await user.save();
+            return {success:true, message:"User updated", data:updatedUser.skills}
+        } catch (error) {
+            console.log("error editing user skills", error);
+            const err = error as Error;
+            throw new Error(`Error editing user skills ${err.message}`);
         }
     }
 }

@@ -41,6 +41,10 @@ const userSchema: Schema = new Schema({
         type:[String],
         default:[]
     },
+    cv:{
+        type:[String],
+        default:[]
+    },
     status:{
         type:Boolean,
         default:false

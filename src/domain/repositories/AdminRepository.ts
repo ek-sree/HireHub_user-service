@@ -77,7 +77,7 @@ export class AdminRepostory implements IAdminRepository {
                 throw new Error("Invalid search value");
             }
     
-            const value = new RegExp(`^${searchValue}`, "i");
+            const value = new RegExp(searchValue, "i");
             console.log("Constructed RegExp:", value);
     
             const users = await User.find({ name: value }).select("-password").exec();

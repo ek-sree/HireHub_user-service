@@ -10,6 +10,10 @@ const config = {
     EMAIL_PASSWORD: process.env.PASSWORD_NODEMAILER,
     CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     rabbitMq_url: process.env.RABBITmq_url || '',
+    bucketName: process.env.BUCKET_NAME,
+    bucketRegion: process.env.BUCKET_REGION,
+    bucketAccessKey: process.env.BUCKET_ACCESS_KEY,
+    bucketAccessPassword: process.env.BUCKET_ACCESS_PASSWORD
 };
 
 if (!config.rabbitMq_url) {

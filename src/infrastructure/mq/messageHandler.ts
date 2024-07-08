@@ -52,6 +52,10 @@ export default class MessageHandler {
                 response = await userController.editedSkills(data);
                 break;    
 
+            case 'cv-upload':
+                response = await userController.addedCv(data);
+                break;    
+
             default:
                 response = { error: 'Operation not supported' };
                 break;

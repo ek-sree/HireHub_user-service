@@ -5,6 +5,9 @@ import { sendOtpEmail } from "../../utils/emailVerification";
 import { OAuth2Client } from 'google-auth-library';
 import config from "../../infrastructure/config";
 import { IUserDetails, IUserInfo } from "../../domain/entities/IUserDetails";
+import sharp from "sharp";
+import { uploadFileToS3 } from "../../infrastructure/s3/s3Action";
+import { Buffer } from 'buffer';
 
 class UserService {
     private userRepo: UserRepository;
@@ -269,6 +272,38 @@ class UserService {
             throw error;
         }
     }
+
+    async addCV(data: { email: string, cvFile: { buffer: { type: string, data: number[] }, originalname: string } }): Promise<{ success: boolean, message: string, fileUrl?: string }> {
+        console.log("Data received:", data);
+    
+        try {
+            const email = data.email;
+            const { buffer: bufferObj, originalname } = data.cvFile;
+    
+            // Convert buffer object to Buffer
+            const buffer = Buffer.from(bufferObj.data);
+    
+            if (!Buffer.isBuffer(buffer)) {
+                throw new Error("cvFile buffer is not a valid Buffer");
+            }
+    
+            const uploadFile = await uploadFileToS3(buffer, originalname);
+    
+            const result = await this.userRepo.uploadCv(email, uploadFile);
+    
+            if (!result.success) {
+                return { success: false, message: "Can't upload image name to database" };
+            }
+    
+            return { success: true, message: "Successfully saved", fileUrl: result.data };
+        } catch (error) {
+            console.error("Error adding user cv:", error);
+            throw new Error("Error occurred while adding user cv");
+        }
+    }
+    
+    
+    
 }
 
 export { UserService };

@@ -231,4 +231,25 @@ export class UserRepository implements IUserRepository {
             throw new Error(`Error editing user skills ${err.message}`);
         }
     }
+
+    async uploadCv(email:string,fileUrls:string): Promise<{success:boolean, message:string, data?:string}>{
+        try {
+            const user = await User.findOne({email});
+            if(!user){
+                return {success: false, message:"user not found"}
+            }
+            if (!user.cv) {
+                user.cv = [];
+            }
+            user.cv.push(fileUrls); 
+            const updateDetails = await user.save();
+            console.log("uploaded successfully",updateDetails);
+            
+            return { success: true, message: "Updated successfully", data: updateDetails.cv?.[0] || '' };
+        } catch (error) {
+            console.log("error adding user cv", error);
+            const err = error as Error;
+            throw new Error(`Error adding user cv ${err.message}`);
+        }
+    }
 }

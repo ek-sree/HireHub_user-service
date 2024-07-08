@@ -153,6 +153,17 @@ class UserController {
             throw new Error("Error occurred while editing user skills");
         }
     }
+
+    async addedCv(data: { email: string, cvFile: { buffer: { type: string, data: number[] }, originalname: string } }) {
+        try {
+            const result = await this.userService.addCV(data);
+            return result;
+        } catch (error) {
+            console.error("Error adding user cv:", error);
+            throw new Error("Error occurred while adding user cv");
+        }
+    }
+    
 }
 
 export const userController = new UserController();

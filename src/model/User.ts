@@ -41,9 +41,12 @@ const userSchema: Schema = new Schema({
         type:[String],
         default:[]
     },
-    cv:{
-        type:[String],
-        default:[]
+    cv: {
+        type: [{
+            url: String,
+            filename: String
+        }],
+        default: [],
     },
     status:{
         type:Boolean,

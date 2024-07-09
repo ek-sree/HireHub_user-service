@@ -6,7 +6,7 @@ import { OAuth2Client } from 'google-auth-library';
 import config from "../../infrastructure/config";
 import { IUserDetails, IUserInfo } from "../../domain/entities/IUserDetails";
 import sharp from "sharp";
-import { uploadFileToS3 } from "../../infrastructure/s3/s3Action";
+import { deleteFileFromS3, fetchFileFromS3, uploadFileToS3 } from "../../infrastructure/s3/s3Action";
 import { Buffer } from 'buffer';
 
 class UserService {
@@ -76,7 +76,6 @@ class UserService {
     async loginUser(email: string, password: string): Promise<any> {
         try {
             const result = await this.userRepo.checkUser(email, password);
-            console.log("Check user responseeeeee", result);
             return result;
         } catch (error) {
             if (error instanceof Error) {
@@ -277,10 +276,9 @@ class UserService {
         console.log("Data received:", data);
     
         try {
+            const realFileName = data.cvFile.originalname
             const email = data.email;
             const { buffer: bufferObj, originalname } = data.cvFile;
-    
-            // Convert buffer object to Buffer
             const buffer = Buffer.from(bufferObj.data);
     
             if (!Buffer.isBuffer(buffer)) {
@@ -289,7 +287,7 @@ class UserService {
     
             const uploadFile = await uploadFileToS3(buffer, originalname);
     
-            const result = await this.userRepo.uploadCv(email, uploadFile);
+            const result = await this.userRepo.uploadCv(email, uploadFile, realFileName);
     
             if (!result.success) {
                 return { success: false, message: "Can't upload image name to database" };
@@ -301,8 +299,44 @@ class UserService {
             throw new Error("Error occurred while adding user cv");
         }
     }
+
+    async getCvs(email: string): Promise<{ success: boolean, message: string, cv?: { url: string, filename: string }[] }> {
+        try {
+            const cvUrlsResponse = await this.userRepo.findCv(email);
+            if (!cvUrlsResponse.success || !cvUrlsResponse.cvUrls) {
+                return { success: false, message: "Couldn't find CV URLs" };
+            }
     
+            const result = await fetchFileFromS3(cvUrlsResponse.cvUrls);
+            if (!result) {
+                return { success: false, message: "Can't access images from S3" };
+            }
     
+            return { success: true, message: "Images fetched", cv: result };
+        } catch (error) {
+            console.error("Error fetching user CV:", error);
+            throw new Error("Error occurred while fetching user CV");
+        }
+    }
+
+    async deleteCv(url:string, email:string): Promise<{success:boolean, message:string}>{
+        try {
+            console.log("url,email",url, email);
+            
+            const result = await this.userRepo.removeCv(url,email);
+            if(!result.success){
+                return {success:false, message:"Deleting url from db is failed"}
+            }
+            const response = await deleteFileFromS3(url);
+            if(!response.success){
+                return {success:false, message:"cant delete deleted from s3"}
+            }
+            return {success:true, message:"Deleted file from s3 too"}
+        } catch (error) {
+            console.error("Error removing user CV:", error);
+            throw new Error("Error occurred while removing user CV");
+        }
+    }
     
 }
 

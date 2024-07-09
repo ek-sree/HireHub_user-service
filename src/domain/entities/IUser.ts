@@ -9,7 +9,7 @@ export interface IUser {
     education?:string[];
     place?:string[];
     skills?:string[];
-    cv?:string[];
+    cv?: { url: string, filename: string }[];
     status?:boolean;
     resume?:string[];
     avatar?:string;

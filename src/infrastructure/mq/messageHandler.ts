@@ -54,6 +54,14 @@ export default class MessageHandler {
 
             case 'cv-upload':
                 response = await userController.addedCv(data);
+                break;
+                
+            case 'fetch-cvs':
+                response = await userController.getCvs(data);
+                break; 
+                
+            case 'remove-cv':
+                response = await userController.deleteCv(data);
                 break;    
 
             default:

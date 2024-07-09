@@ -232,24 +232,79 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async uploadCv(email:string,fileUrls:string): Promise<{success:boolean, message:string, data?:string}>{
+    async uploadCv(email: string, fileUrls: string, realFileName: string): Promise<{ success: boolean, message: string, data?: string }> {
         try {
-            const user = await User.findOne({email});
-            if(!user){
-                return {success: false, message:"user not found"}
+            const user = await User.findOne({ email });
+            if (!user) {
+                return { success: false, message: "user not found" };
             }
             if (!user.cv) {
                 user.cv = [];
             }
-            user.cv.push(fileUrls); 
+            user.cv.push({ url: fileUrls, filename: realFileName });
             const updateDetails = await user.save();
-            console.log("uploaded successfully",updateDetails);
-            
-            return { success: true, message: "Updated successfully", data: updateDetails.cv?.[0] || '' };
+            console.log("uploaded successfully", updateDetails);
+    
+            return { success: true, message: "Updated successfully", data: updateDetails.cv?.[0].url || '' };
         } catch (error) {
             console.log("error adding user cv", error);
             const err = error as Error;
             throw new Error(`Error adding user cv ${err.message}`);
+        }
+    }
+    
+    
+
+    async findCv(email: string): Promise<{ success: boolean, message: string, cvUrls?: { url: string, filename: string }[] }> {
+        try {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return { success: false, message: "User not found" };
+            }
+            return { success: true, message: "cv urls found", cvUrls: user.cv };
+        } catch (error) {
+            console.log("error fetching user cv", error);
+            const err = error as Error;
+            throw new Error(`Error fetching user cv ${err.message}`);
+        }
+    }
+    
+    async removeCv(url:string, email:string): Promise<{success:boolean, message:string}>{
+        try {
+            console.log("gettinf data in db ??");
+            
+            const user = await User.findOne({email});
+            if(!user) {
+                return {success: false, message:"user not found"}
+            }
+            console.log("..........");
+            
+            if (!user.cv) {
+                return { success: false, message: "No CVs found for the user" };
+            }
+            const fileName = url.split('/').pop()?.split('?')[0];
+        console.log("Extracted file name: ", fileName);
+
+        const cvIndex = user.cv.findIndex(cv => cv.url === fileName);
+        console.log("Index found: ", cvIndex);
+
+console.log("index finded",cvIndex);
+
+            if(cvIndex === -1){
+                return { success: false, message: "CV not found" };
+            }
+console.log("heeeeeeeeeeeee2222222222,,,,,");
+
+            user.cv.splice(cvIndex, 1);
+             await user.save();
+             console.log("success db remove");
+             
+             return {success:true, message:"delete successfully"}
+
+        } catch (error) {
+            console.log("error removing user cv", error);
+            const err = error as Error;
+            throw new Error(`Error removing user cv ${err.message}`);
         }
     }
 }

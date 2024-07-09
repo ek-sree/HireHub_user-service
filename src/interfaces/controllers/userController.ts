@@ -163,7 +163,31 @@ class UserController {
             throw new Error("Error occurred while adding user cv");
         }
     }
-    
+
+    async getCvs(data:{email: string}){
+        try {
+            const email = data.email;
+            const result = await this.userService.getCvs(email)
+            return result;
+        } catch (error) {
+            console.error("Error getting user cv:", error);
+            throw new Error("Error occurred while getting user cv");
+        }
+    } 
+
+    async deleteCv(data:{url:string, email: string}){
+        try {
+            console.log("remove data", data);
+            
+            const url = data.url;
+            const email = data.email;
+            const result = await this.userService.deleteCv(url,email);
+            return result;
+        } catch (error) {
+            console.error("Error removing user cv:", error);
+            throw new Error("Error occurred while removing user cv");
+        }
+    }
 }
 
 export const userController = new UserController();

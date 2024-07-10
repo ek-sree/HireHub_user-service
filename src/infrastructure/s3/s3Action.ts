@@ -48,7 +48,7 @@ export async function fetchFileFromS3(files: { url: string, filename: string }[]
             Key: file.url,
         };
         const command = new GetObjectCommand(getObjectParams);
-        const imageUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+        const imageUrl = await getSignedUrl(s3, command, { expiresIn: 604800 });
         return { url: imageUrl, filename: file.filename };
     });
 

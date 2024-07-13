@@ -337,6 +337,52 @@ class UserService {
             throw new Error("Error occurred while removing user CV");
         }
     }
+
+    async addProfile(data: { email: string; image: { buffer: { type: string; data: number[] }; originalname: string } }): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
+        try {
+            const { email, image: { originalname, buffer } } = data;
+            const bufferData = Buffer.from(new Uint8Array(buffer.data));
+            if (!Buffer.isBuffer(buffer)) {
+                throw new Error("Profile buffer is not a valid Buffer");
+            }
+            const uploadFile = await uploadFileToS3(bufferData, originalname);
+            const result = await this.userRepo.saveProfile(email, uploadFile, originalname);
+    
+            if (!result) {
+                return { success: false, message: "Profile pic not added" };
+            }
+    
+            return { success: true, message: "Profile pic added", data: result.data };
+        } catch (error) {
+            console.error("Error adding profile pic:", error);
+            throw new Error("Error occurred while adding profile pic");
+        }
+    }
+    
+    
+    async getProfile(email: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
+        try {
+            const result = await this.userRepo.getProfileImage(email);
+            if (!result || !result.data || !result.data.imageUrl) {
+                return { success: true, message: "No profile picture found", data: { imageUrl: "/default-profile.jpg", originalname: "default-profile.jpg" } };
+            }
+    
+            const files = [{ url: result.data.imageUrl, filename: result.data.originalname }];
+            console.log("Fetching file from S3 with URLs:", files);
+    
+            const avatar = await fetchFileFromS3(files);
+    
+            if (avatar.length > 0) {
+                return { success: true, message: "Data found", data: { imageUrl: avatar[0].url, originalname: avatar[0].filename } };
+            }
+    
+            return { success: false, message: "No avatar found" };
+        } catch (error) {
+            console.error("Error fetching profile pic:", error);
+            throw new Error("Error occurred while fetching profile pic");
+        }
+    }
+    
     
 }
 

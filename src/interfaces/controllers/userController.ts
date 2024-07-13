@@ -188,6 +188,29 @@ class UserController {
             throw new Error("Error occurred while removing user cv");
         }
     }
+
+    async addProfile(data:{email:string, image:{buffer:{type:string, data:number[]},originalname:string}}){
+        try {
+            const result = await this.userService.addProfile(data)
+            return result;
+        } catch (error) {
+            console.error("Error adding user profile:", error);
+            throw new Error("Error occurred while adding user profile");
+        }
+    }
+
+    async fetchedProfile(data:{email:string}){
+        try {
+            const email = data.email;
+            const result = await this.userService.getProfile(email);
+            console.log("imagees",data);
+            
+            return result;
+        } catch (error) {
+            console.error("Error fetching user profile:", error);
+            throw new Error("Error occurred while fetching user profile");
+        }
+    }
 }
 
 export const userController = new UserController();

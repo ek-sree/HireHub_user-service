@@ -37,15 +37,15 @@ export async function uploadFileToS3(fileBuffer: Buffer, originalName: string): 
     }
 }
 
-
 export async function fetchFileFromS3(files: { url: string, filename: string }[]): Promise<{ url: string, filename: string }[]> {
     
     const s3Promises = files.map(async (file) => {
-        console.log("dadadadadadadadadadaddadad",file.url);
-        
+        // Ensure the URL is a string
+        const fileUrl = Array.isArray(file.url) ? file.url[0] : file.url;
+
         const getObjectParams = {
             Bucket: config.bucketName,
-            Key: file.url,
+            Key: fileUrl,
         };
         const command = new GetObjectCommand(getObjectParams);
         const imageUrl = await getSignedUrl(s3, command, { expiresIn: 604800 });
@@ -61,8 +61,7 @@ export async function fetchFileFromS3(files: { url: string, filename: string }[]
     }
 }
 
-
-export async function deleteFileFromS3(url:string):Promise<{success:boolean,message: string}>{
+export async function deleteFileFromS3(url: string): Promise<{ success: boolean; message: string }> {
     try {
         const key = url.split('/').pop()?.split('?')[0];
         if (!key) {
@@ -74,16 +73,14 @@ export async function deleteFileFromS3(url:string):Promise<{success:boolean,mess
         }
         const command = new DeleteObjectCommand(params);
         const result = await s3.send(command);
-        if(!result){
-            return {success:false, message:"error occured cant delete file"}
+        if (!result) {
+            return { success: false, message: "Error occurred, can't delete file" };
         }
-        console.log("removed file successfully from s333333");
+        console.log("Removed file successfully from S3");
         
-        return {success:true, message:"Delete successfully"}
+        return { success: true, message: "Deleted successfully" };
     } catch (error) {
-        console.log("Error deleting file from s3",error);
-        throw new Error("Error occured while removing file from s3")
+        console.error("Error deleting file from S3", error);
+        throw new Error("Error occurred while removing file from S3");
     }
 }
-
-

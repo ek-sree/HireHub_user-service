@@ -115,7 +115,6 @@ export class UserRepository implements IUserRepository {
             const name = user.name;
             const title = user.profileTitle;
             const result = {name, title};
-            console.log("repooo res",result);
             
             return {success: true, message:"Found data", result}
         } catch (error) {
@@ -286,14 +285,9 @@ export class UserRepository implements IUserRepository {
         console.log("Extracted file name: ", fileName);
 
         const cvIndex = user.cv.findIndex(cv => cv.url === fileName);
-        console.log("Index found: ", cvIndex);
-
-console.log("index finded",cvIndex);
-
             if(cvIndex === -1){
                 return { success: false, message: "CV not found" };
             }
-console.log("heeeeeeeeeeeee2222222222,,,,,");
 
             user.cv.splice(cvIndex, 1);
              await user.save();
@@ -307,4 +301,42 @@ console.log("heeeeeeeeeeeee2222222222,,,,,");
             throw new Error(`Error removing user cv ${err.message}`);
         }
     }
+
+    async saveProfile(email: string, image: string, originalname: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
+        try {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return { success: false, message: "User not found" };
+            }
+    
+            user.avatar = { imageUrl: image, originalname }; 
+            
+            const savedUser = await user.save();
+            return { success: true, message: "Url saved successfully", data: savedUser.avatar };
+        } catch (error) {
+            console.log("Error saving profile image", error);
+            const err = error as Error;
+            throw new Error(`Error saving profile image: ${err.message}`);
+        }
+    }
+    
+    
+
+    async getProfileImage(email: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
+        try {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return { success: false, message: "User not found" };
+            }
+    
+            const userAvatar = user.avatar || { imageUrl: '', originalname: '' };
+            return { success: true, message: "User profile image found", data: userAvatar };
+        } catch (error) {
+            console.log("Error fetching profile img", error);
+            const err = error as Error;
+            throw new Error(`Error fetching profile img ${err.message}`);
+        }
+    }
+    
+    
 }

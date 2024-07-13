@@ -62,6 +62,14 @@ export default class MessageHandler {
                 
             case 'remove-cv':
                 response = await userController.deleteCv(data);
+                break;
+                
+            case 'profile-add':
+                response = await userController.addProfile(data);
+                break;  
+                
+            case 'fetch-profile-image':
+                response = await userController.fetchedProfile(data);
                 break;    
 
             default:

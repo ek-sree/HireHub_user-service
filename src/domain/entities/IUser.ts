@@ -12,7 +12,7 @@ export interface IUser {
     cv?: { url: string, filename: string }[];
     status?:boolean;
     resume?:string[];
-    avatar?:string;
+    avatar?: { imageUrl: string; originalname: string };
     profileTitle?:string;
     created_at?:Date;
 }

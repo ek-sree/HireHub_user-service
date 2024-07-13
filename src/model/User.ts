@@ -57,7 +57,14 @@ const userSchema: Schema = new Schema({
         default:[]
     },
     avatar: {
-        type: String
+        imageUrl:{
+            type: String,
+            default: ''
+        },
+        originalname:{
+            type:String,
+             default: ''
+        }
     },
     profileTitle: {
         type: String

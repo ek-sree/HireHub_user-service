@@ -9,3 +9,10 @@ export interface IUserInfo {
     place?:string[] | undefined;
     education?:string[] | undefined;
 } 
+export interface IUserPostDetails {
+    name?: string;
+    avatar?: {
+        imageUrl: string;
+        originalname: string;
+    };
+}

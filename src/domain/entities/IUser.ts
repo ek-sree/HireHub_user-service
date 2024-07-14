@@ -5,7 +5,7 @@ export interface IUser {
     phone?: string;
     password: string;
     isAdmin?:boolean;
-    coverphoto?:string;
+    coverphoto?: { imageUrl: string; originalname: string };
     education?:string[];
     place?:string[];
     skills?:string[];
@@ -16,4 +16,3 @@ export interface IUser {
     profileTitle?:string;
     created_at?:Date;
 }
-

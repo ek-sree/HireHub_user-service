@@ -16,7 +16,6 @@ const userSchema: Schema = new Schema({
     },
     phone:{
         type: Number,
-        
     },
     password:{
         type: String,
@@ -26,9 +25,15 @@ const userSchema: Schema = new Schema({
         type:Boolean,
         default: false
     },
-    coverphoto:{
-        type:String,
-        
+    coverphoto: {
+        imageUrl: {
+            type: String,
+            default: ''
+        },
+        originalname: {
+            type: String,
+            default: ''
+        }
     },
     education:{
         type:[String],

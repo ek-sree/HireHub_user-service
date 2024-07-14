@@ -37,19 +37,31 @@ export async function uploadFileToS3(fileBuffer: Buffer, originalName: string): 
     }
 }
 
-export async function fetchFileFromS3(files: { url: string, filename: string }[]): Promise<{ url: string, filename: string }[]> {
-    
+export async function fetchFileFromS3(files: { url: string | undefined; filename: string }[]): Promise<{ url: string; filename: string }[]> {
     const s3Promises = files.map(async (file) => {
-        // Ensure the URL is a string
-        const fileUrl = Array.isArray(file.url) ? file.url[0] : file.url;
+        // Ensure file.url is defined
+        const url = file.url || ""; // Default to an empty string if undefined
+        const key = url.split('/').pop()?.split('?')[0];
+
+        if (!key) {
+            console.error("File key is undefined for:", file);
+            return { url: "", filename: file.filename }; // Handle the error as needed
+        }
 
         const getObjectParams = {
             Bucket: config.bucketName,
-            Key: fileUrl,
+            Key: key,
         };
+        console.log("Fetching file with key:", key);
         const command = new GetObjectCommand(getObjectParams);
-        const imageUrl = await getSignedUrl(s3, command, { expiresIn: 604800 });
-        return { url: imageUrl, filename: file.filename };
+        
+        try {
+            const imageUrl = await getSignedUrl(s3, command, { expiresIn: 604800 });
+            return { url: imageUrl, filename: file.filename };
+        } catch (error) {
+            console.error("Error getting signed URL:", error);
+            return { url: "", filename: file.filename }; 
+        }
     });
 
     try {
@@ -60,6 +72,9 @@ export async function fetchFileFromS3(files: { url: string, filename: string }[]
         throw error;
     }
 }
+
+
+
 
 export async function deleteFileFromS3(url: string): Promise<{ success: boolean; message: string }> {
     try {

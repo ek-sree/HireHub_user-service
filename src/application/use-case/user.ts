@@ -4,7 +4,7 @@ import { generateOtp } from "../../utils/generateOtp";
 import { sendOtpEmail } from "../../utils/emailVerification";
 import { OAuth2Client } from 'google-auth-library';
 import config from "../../infrastructure/config";
-import { IUserDetails, IUserInfo } from "../../domain/entities/IUserDetails";
+import { IUserDetails, IUserInfo, IUserPostDetails } from "../../domain/entities/IUserDetails";
 import sharp from "sharp";
 import { deleteFileFromS3, fetchFileFromS3, uploadFileToS3 } from "../../infrastructure/s3/s3Action";
 import { Buffer } from 'buffer';
@@ -341,10 +341,7 @@ class UserService {
     async addProfile(data: { email: string; image: { buffer: { type: string; data: number[] }; originalname: string } }): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
         try {
             const { email, image: { originalname, buffer } } = data;
-            const bufferData = Buffer.from(new Uint8Array(buffer.data));
-            if (!Buffer.isBuffer(buffer)) {
-                throw new Error("Profile buffer is not a valid Buffer");
-            }
+            const bufferData = Buffer.from(buffer.data);
             const uploadFile = await uploadFileToS3(bufferData, originalname);
             const result = await this.userRepo.saveProfile(email, uploadFile, originalname);
     
@@ -366,9 +363,9 @@ class UserService {
             if (!result || !result.data || !result.data.imageUrl) {
                 return { success: true, message: "No profile picture found", data: { imageUrl: "/default-profile.jpg", originalname: "default-profile.jpg" } };
             }
+    console.log("data url profile",result);
     
             const files = [{ url: result.data.imageUrl, filename: result.data.originalname }];
-            console.log("Fetching file from S3 with URLs:", files);
     
             const avatar = await fetchFileFromS3(files);
     
@@ -383,6 +380,81 @@ class UserService {
         }
     }
     
+    async addCoverImg(data: { email: string; image: { buffer: { type: string; data: number[] }; originalname: string } }):Promise<{success:boolean, message:string, data?: { imageUrl: string; originalname: string }}>{
+        try {
+            const { email, image: { originalname, buffer } } = data;
+            console.log("not buffer data",buffer.data);
+            
+            const bufferData = Buffer.from(buffer.data);
+            console.log("buffered data",bufferData);
+            
+            const uploadFile = await uploadFileToS3(bufferData, originalname);
+            const result = await this.userRepo.saveCoverImg(email,uploadFile,originalname);
+            if(!result){
+                return {success:false, message:"cant add data"}
+            }
+            return {success:true, message:result.message, data:result.data}
+        } catch (error) {
+            console.error("Error adding cover pic:", error);
+            throw new Error("Error occurred while adding cover pic");
+        }
+    }
+
+    async getCoverImg(email:string):Promise<{success:boolean, message:string, data?:{ imageUrl: string; originalname: string }}>{
+        try {
+            const result = await this.userRepo.getCoverImage(email);
+            if (!result || !result.data || !result.data.imageUrl) {
+                return { success: true, message: "No profile picture found", data: { imageUrl: "/default-profile.jpg", originalname: "default-profile.jpg" } };
+            }
+            const files = [{ url: result.data.imageUrl, filename: result.data.originalname }];
+            const coverImg = await fetchFileFromS3(files);
+            
+            if (coverImg.length > 0) {
+                return { success: true, message: "Data found", data: { imageUrl: coverImg[0].url, originalname: coverImg[0].filename } };
+            }
+    
+            return { success: false, message: "No avatar found" };
+        } catch (error) {
+            console.error("Error fetching cover  pic:", error);
+            throw new Error("Error occurred while fetching cover  pic");
+        }
+    }
+
+    async fetchUserDatasForPost(userId: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails }> {
+        try {
+            console.log("hereeeeead",userId);
+            
+            const result = await this.userRepo.findUserDetailsForPost(userId);
+            if (!result || !result.data) {
+                return { success: false, message: "No data found" };
+            }
+    
+            const { name, avatar } = result.data;
+            if (avatar) {
+                const files = [{ url: avatar.imageUrl, filename: avatar.originalname }];
+                const fetchedAvatar = await fetchFileFromS3(files);
+    
+                if (fetchedAvatar.length > 0) {
+                    const avatarData = {
+                        imageUrl: fetchedAvatar[0].url,
+                        originalname: fetchedAvatar[0].filename,
+                    };
+    
+                    return {
+                        success: true,
+                        message: "Data found",
+                        data: { name, avatar: avatarData }, 
+                    };
+                }
+            }
+    
+            return { success: false, message: "No avatar found" };
+        } catch (error) {
+            console.error("Error fetching user data for post:", error);
+            throw new Error("Error occurred while fetching user data for post");
+        }
+    }
+      
     
 }
 

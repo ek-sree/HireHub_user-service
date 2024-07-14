@@ -72,6 +72,18 @@ export default class MessageHandler {
                 response = await userController.fetchedProfile(data);
                 break;    
 
+            case 'add-cover-img':
+                response = await userController.addCoverPic(data);
+                break;  
+                
+            case 'get-cover-image':
+                response = await userController.fetchCoverImg(data);
+                break;    
+
+            case 'get-user-details-for-post':
+                response = await userController.fetchDataForPost(data);
+                break;  
+
             default:
                 response = { error: 'Operation not supported' };
                 break;

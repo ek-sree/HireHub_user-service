@@ -84,7 +84,6 @@ class UserController {
     
     async fetchedDetails(data:{email:string}){
         try {
-            console.log("sda...",data);
             
             const result = await this.userService.fetchUserDetails(data);
             return result;
@@ -203,7 +202,6 @@ class UserController {
         try {
             const email = data.email;
             const result = await this.userService.getProfile(email);
-            console.log("imagees",data);
             
             return result;
         } catch (error) {
@@ -211,6 +209,46 @@ class UserController {
             throw new Error("Error occurred while fetching user profile");
         }
     }
+
+    async addCoverPic(data:{email:string, image:{buffer:{type:string, data:number[]},originalname:string}}){
+        try {
+            const result = await this.userService.addCoverImg(data);
+            return result;
+        } catch (error) {
+            console.error("Error adding user cover image:", error);
+            throw new Error("Error occurred while adding user cover image");
+        }
+    }
+
+    async fetchCoverImg(data:{email:string}){
+        try {
+            const email = data.email;
+            const result = await this.userService.getCoverImg(email);
+            return result;
+        } catch (error) {
+            console.error("Error fetching user coverimg:", error);
+            throw new Error("Error occurred while fetching user coverimg");
+        }
+    }
+
+    async fetchDataForPost(data: { userIds: string[] }) {
+        try {
+            console.log("man pleaseee", data);
+            
+            const userId = data.userIds[0]; 
+            
+            console.log("user id des", userId);
+            
+            const result = await this.userService.fetchUserDatasForPost(userId);
+            console.log("resultttt", result);
+            
+            return result;
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            throw new Error("Error occurred while fetching user data");
+        }
+    }
+    
 }
 
 export const userController = new UserController();

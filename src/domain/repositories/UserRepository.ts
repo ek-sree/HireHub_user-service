@@ -2,7 +2,8 @@ import { IUserRepository } from './IUserRepository';
 import { IUser } from '../entities/IUser';
 import { User } from '../../model/User';
 import bcrypt from 'bcrypt';
-import { IUserDetails, IUserInfo } from '../entities/IUserDetails';
+import { IUserDetails, IUserInfo, IUserPostDetails } from '../entities/IUserDetails';
+import mongoose from 'mongoose';
 
 export class UserRepository implements IUserRepository {
 
@@ -338,5 +339,66 @@ export class UserRepository implements IUserRepository {
         }
     }
     
+    async saveCoverImg(email: string, image: string, originalname: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
+        try {
+            const result = await User.findOneAndUpdate(
+                { email },
+                { $set: { 'coverphoto.imageUrl': image, 'coverphoto.originalname': originalname } },
+                { new: true }
+            );
+    
+            if (!result) {
+                return { success: false, message: "No user found" };
+            }
+    
+            return { success: true, message: "Data saved successfully", data: result.coverphoto };
+        } catch (error) {
+            console.log("Error saving Cover image", error);
+            const err = error as Error;
+            throw new Error(`Error saving cover image: ${err.message}`);
+        }
+    }
+
+    async getCoverImage(email:string):Promise<{success:boolean, message:string, data?: { imageUrl: string; originalname: string }}>{
+        try {
+            const user = await User.findOne({email});
+            if(!user){
+                return {success:false, message:"No user found"}
+            }
+            const userCoverImg = user.coverphoto || { imageUrl: '', originalname: '' };
+            return {success:true, message:"Found data", data:userCoverImg}
+        } catch (error) {
+            console.log("Error fetching cover img", error);
+            const err = error as Error;
+            throw new Error(`Error fetching cover img ${err.message}`);
+        }
+    }
+    
+    async findUserDetailsForPost(userId: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails }> {
+        try {
+            console.log("userId",userId);
+            console.log("userId type",typeof userId);
+            
+            const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+            if (!user) {
+                return { success: false, message: "No user found" };
+            }
+    console.log("user",user);
+    
+            const datas: IUserPostDetails = {
+                name: user.name,
+                avatar: {
+                    imageUrl: user.avatar?.imageUrl || '',
+                    originalname: user.avatar?.originalname || '',
+                },
+            };
+    
+            return { success: true, message: "Data found", data: datas };
+        } catch (error) {
+            console.log("Error fetching user datas", error);
+            const err = error as Error;
+            throw new Error(`Error fetching user datas ${err.message}`);
+        }
+    }
     
 }

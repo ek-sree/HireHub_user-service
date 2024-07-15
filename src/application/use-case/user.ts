@@ -161,12 +161,12 @@ class UserService {
         }
     }
 
-    async fetchUserDetails(data:{email: string}): Promise<{success: boolean, message:string, details?:IUserDetails}>{
+    async fetchUserDetails(data:{userId: string}): Promise<{success: boolean, message:string, details?:IUserDetails}>{
         try {
-            const { email } = data;
-        console.log("email", email);
+            const { userId } = data;
+        console.log("email", userId);
             
-            const result = await this.userRepo.findDetails(email)
+            const result = await this.userRepo.findDetails(userId)
             if(!result.success){
                 return{success: false, message:"cant find details"}
             }
@@ -179,10 +179,10 @@ class UserService {
         }
     }
 
-    async fetchUserInfo(data:{email: string}): Promise<{success: boolean, message:string, info?:IUserInfo}>{
+    async fetchUserInfo(data:{userId: string}): Promise<{success: boolean, message:string, info?:IUserInfo}>{
         try {
-            const {email} = data;
-            const result = await this.userRepo.findUserInfo(email);
+            const {userId} = data;
+            const result = await this.userRepo.findUserInfo(userId);
             if(!result.success || !result.result){
                 return {success: false, message:"No info found"}
             }
@@ -241,10 +241,10 @@ class UserService {
         }
     }
 
-    async fetchSkills(data:{email:string}):Promise<{success:boolean, message:string, skills?:string[]}>{
+    async fetchSkills(data:{userId:string}):Promise<{success:boolean, message:string, skills?:string[]}>{
         try {
-            const {email} = data;
-            const skills = await this.userRepo.findSkills(email)
+            const {userId} = data;
+            const skills = await this.userRepo.findSkills(userId)
             if(!skills){
                 return {success:false, message:"Data not found"}
             }
@@ -357,13 +357,12 @@ class UserService {
     }
     
     
-    async getProfile(email: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
+    async getProfile(userId: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
         try {
-            const result = await this.userRepo.getProfileImage(email);
+            const result = await this.userRepo.getProfileImage(userId);
             if (!result || !result.data || !result.data.imageUrl) {
                 return { success: true, message: "No profile picture found", data: { imageUrl: "/default-profile.jpg", originalname: "default-profile.jpg" } };
             }
-    console.log("data url profile",result);
     
             const files = [{ url: result.data.imageUrl, filename: result.data.originalname }];
     
@@ -400,9 +399,9 @@ class UserService {
         }
     }
 
-    async getCoverImg(email:string):Promise<{success:boolean, message:string, data?:{ imageUrl: string; originalname: string }}>{
+    async getCoverImg(userId:string):Promise<{success:boolean, message:string, data?:{ imageUrl: string; originalname: string }}>{
         try {
-            const result = await this.userRepo.getCoverImage(email);
+            const result = await this.userRepo.getCoverImage(userId);
             if (!result || !result.data || !result.data.imageUrl) {
                 return { success: true, message: "No profile picture found", data: { imageUrl: "/default-profile.jpg", originalname: "default-profile.jpg" } };
             }
@@ -422,14 +421,14 @@ class UserService {
 
     async fetchUserDatasForPost(userId: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails }> {
         try {
-            console.log("hereeeeead",userId);
-            
+            console.log("hereeeeead", userId);
+    
             const result = await this.userRepo.findUserDetailsForPost(userId);
             if (!result || !result.data) {
                 return { success: false, message: "No data found" };
             }
     
-            const { name, avatar } = result.data;
+            const { id,name, avatar } = result.data;
             if (avatar) {
                 const files = [{ url: avatar.imageUrl, filename: avatar.originalname }];
                 const fetchedAvatar = await fetchFileFromS3(files);
@@ -443,7 +442,7 @@ class UserService {
                     return {
                         success: true,
                         message: "Data found",
-                        data: { name, avatar: avatarData }, 
+                        data: { id, name, avatar: avatarData },
                     };
                 }
             }
@@ -454,6 +453,7 @@ class UserService {
             throw new Error("Error occurred while fetching user data for post");
         }
     }
+    
       
     
 }

@@ -1,4 +1,5 @@
 import { UserService } from '../../application/use-case/user';
+import { IUserPostDetails } from '../../domain/entities/IUserDetails';
 import grpcErrorHandler from '../middleware/grpcErrorHandler';
 
 class UserController {
@@ -82,8 +83,9 @@ class UserController {
         }
     }
     
-    async fetchedDetails(data:{email:string}){
+    async fetchedDetails(data:{userId:string}){
         try {
+            console.log("daraaaaaaa",data);
             
             const result = await this.userService.fetchUserDetails(data);
             return result;
@@ -93,7 +95,7 @@ class UserController {
         }
     }
 
-    async fetchedUserInfo(data:{email:string}){
+    async fetchedUserInfo(data:{userId:string}){
         try {
             const result = await this.userService.fetchUserInfo(data);
             return result;
@@ -131,7 +133,7 @@ class UserController {
         }
     }
 
-    async fetchedSkills(data:{email:string}){
+    async fetchedSkills(data:{userId:string}){
         try {
             const result = await this.userService.fetchSkills(data);
             return result;
@@ -198,10 +200,10 @@ class UserController {
         }
     }
 
-    async fetchedProfile(data:{email:string}){
+    async fetchedProfile(data:{userId:string}){
         try {
-            const email = data.email;
-            const result = await this.userService.getProfile(email);
+            const userId = data.userId;
+            const result = await this.userService.getProfile(userId);
             
             return result;
         } catch (error) {
@@ -220,10 +222,12 @@ class UserController {
         }
     }
 
-    async fetchCoverImg(data:{email:string}){
+    async fetchCoverImg(data:{userId:string}){
         try {
-            const email = data.email;
-            const result = await this.userService.getCoverImg(email);
+            const userId = data.userId;
+            console.log("get cover img",userId);
+            
+            const result = await this.userService.getCoverImg(userId);
             return result;
         } catch (error) {
             console.error("Error fetching user coverimg:", error);
@@ -231,23 +235,34 @@ class UserController {
         }
     }
 
-    async fetchDataForPost(data: { userIds: string[] }) {
+    async fetchDataForPost(data: { userIds: string[] }): Promise<{ success: boolean; message: string; data?: IUserPostDetails[] }> {
         try {
             console.log("man pleaseee", data);
-            
-            const userId = data.userIds[0]; 
-            
-            console.log("user id des", userId);
-            
-            const result = await this.userService.fetchUserDatasForPost(userId);
-            console.log("resultttt", result);
-            
-            return result;
+    
+            const results = await Promise.all(data.userIds.map(async (userId) => {
+                return this.userService.fetchUserDatasForPost(userId);
+            }));
+    
+            const successfulResults = results.filter(result => result.success).map(result => result.data);
+    
+            if (successfulResults.length > 0) {
+                return {
+                    success: true,
+                    message: "Data found",
+                    data: successfulResults as IUserPostDetails[]
+                };
+            } else {
+                return {
+                    success: false,
+                    message: "No data found"
+                };
+            }
         } catch (error) {
             console.error("Error fetching user data:", error);
             throw new Error("Error occurred while fetching user data");
         }
     }
+    
     
 }
 

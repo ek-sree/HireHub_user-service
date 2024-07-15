@@ -52,7 +52,6 @@ export async function fetchFileFromS3(files: { url: string | undefined; filename
             Bucket: config.bucketName,
             Key: key,
         };
-        console.log("Fetching file with key:", key);
         const command = new GetObjectCommand(getObjectParams);
         
         try {

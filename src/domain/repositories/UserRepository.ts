@@ -107,27 +107,29 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async findDetails(email: string): Promise<{success:boolean,message:string, result?:IUserDetails}>{
+    async findDetails(userId: string): Promise<{success:boolean,message:string, result?:IUserDetails}> {
         try {
-            const user = await User.findOne({email});
-            if(!user){
-                return {success: false, message: "user Not found"}
+            if (!mongoose.Types.ObjectId.isValid(userId)) {
+                return { success: false, message: "Invalid user ID format" };
             }
-            const name = user.name;
-            const title = user.profileTitle;
-            const result = {name, title};
-            
-            return {success: true, message:"Found data", result}
+    
+            const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+            if (!user) {
+                return { success: false, message: "User not found" };
+            }
+            const result = { name: user.name, title: user.profileTitle };
+    
+            return { success: true, message: "Found data", result };
         } catch (error) {
             console.log("error fetching details",error);
             const err = error as Error;
-            throw new Error(`Error fetchinguser details${err.message}`);
+            throw new Error(`Error fetching user details${err.message}`);
         }
     }
 
-    async findUserInfo(email:string): Promise<{success: boolean, message:string, result?:IUserInfo}>{
+    async findUserInfo(userId:string): Promise<{success: boolean, message:string, result?:IUserInfo}>{
         try {
-            const user = await User.findOne({email});
+            const user = await User.findOne({_id: new mongoose.Types.ObjectId(userId)});
             if(!user){
                 return {success: false, message:"User not found"};
             }
@@ -201,9 +203,11 @@ export class UserRepository implements IUserRepository {
         }
         }
 
-    async findSkills(email:string):Promise<{success:boolean, message:string, data?:string[]}>{
+    async findSkills(userId:string):Promise<{success:boolean, message:string, data?:string[]}>{
         try {
-            const user = await User.findOne({email});
+            console.log("userID",userId);
+            
+            const user = await User.findOne({_id: new mongoose.Types.ObjectId(userId)});
             if(!user){
                 return {success: false, message:"user not found"};
             }
@@ -323,82 +327,98 @@ export class UserRepository implements IUserRepository {
     
     
 
-    async getProfileImage(email: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
-        try {
-            const user = await User.findOne({ email });
-            if (!user) {
-                return { success: false, message: "User not found" };
-            }
-    
-            const userAvatar = user.avatar || { imageUrl: '', originalname: '' };
-            return { success: true, message: "User profile image found", data: userAvatar };
-        } catch (error) {
-            console.log("Error fetching profile img", error);
-            const err = error as Error;
-            throw new Error(`Error fetching profile img ${err.message}`);
-        }
-    }
-    
-    async saveCoverImg(email: string, image: string, originalname: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
-        try {
-            const result = await User.findOneAndUpdate(
-                { email },
-                { $set: { 'coverphoto.imageUrl': image, 'coverphoto.originalname': originalname } },
-                { new: true }
-            );
-    
-            if (!result) {
-                return { success: false, message: "No user found" };
-            }
-    
-            return { success: true, message: "Data saved successfully", data: result.coverphoto };
-        } catch (error) {
-            console.log("Error saving Cover image", error);
-            const err = error as Error;
-            throw new Error(`Error saving cover image: ${err.message}`);
-        }
-    }
+   
 
-    async getCoverImage(email:string):Promise<{success:boolean, message:string, data?: { imageUrl: string; originalname: string }}>{
-        try {
-            const user = await User.findOne({email});
-            if(!user){
-                return {success:false, message:"No user found"}
-            }
-            const userCoverImg = user.coverphoto || { imageUrl: '', originalname: '' };
-            return {success:true, message:"Found data", data:userCoverImg}
-        } catch (error) {
-            console.log("Error fetching cover img", error);
-            const err = error as Error;
-            throw new Error(`Error fetching cover img ${err.message}`);
+        async getProfileImage(userId: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("Invalid userId format");
         }
-    }
-    
-    async findUserDetailsForPost(userId: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails }> {
-        try {
-            console.log("userId",userId);
-            console.log("userId type",typeof userId);
-            
-            const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
-            if (!user) {
-                return { success: false, message: "No user found" };
-            }
-    console.log("user",user);
-    
-            const datas: IUserPostDetails = {
-                name: user.name,
-                avatar: {
-                    imageUrl: user.avatar?.imageUrl || '',
-                    originalname: user.avatar?.originalname || '',
-                },
-            };
-    
-            return { success: true, message: "Data found", data: datas };
-        } catch (error) {
-            console.log("Error fetching user datas", error);
-            const err = error as Error;
-            throw new Error(`Error fetching user datas ${err.message}`);
+
+        const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+        if (!user) {
+            return { success: false, message: "User not found" };
         }
+
+        const userAvatar = user.avatar || { imageUrl: '', originalname: '' };
+        return { success: true, message: "User profile image found", data: userAvatar };
+    } catch (error) {
+        console.log("Error fetching profile img", error);
+        const err = error as Error;
+        throw new Error(`Error fetching profile img ${err.message}`);
     }
+}
+
+    
+async saveCoverImg(email: string, image: string, originalname: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
+    try {
+        const result = await User.findOneAndUpdate(
+            { email },
+            { $set: { 'coverphoto.imageUrl': image, 'coverphoto.originalname': originalname } },
+            { new: true }
+        );
+
+        if (!result) {
+            return { success: false, message: "No user found" };
+        }
+
+        return { success: true, message: "Data saved successfully", data: result.coverphoto };
+    } catch (error) {
+        console.log("Error saving Cover image", error);
+        const err = error as Error;
+        throw new Error(`Error saving cover image: ${err.message}`);
+    }
+}
+
+
+async getCoverImage(userId: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
+    try {
+       
+console.log("is porb hereeee?", userId);
+
+        const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+        if (!user) {
+            return { success: false, message: "No user found" };
+        }
+        const userCoverImg = user.coverphoto || { imageUrl: '', originalname: '' };
+        return { success: true, message: "Found data", data: userCoverImg };
+    } catch (error) {
+        console.log("Error fetching cover img", error);
+        const err = error as Error;
+        throw new Error(`Error fetching cover img ${err.message}`);
+    }
+}
+    
+async findUserDetailsForPost(userId: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails }> {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("Invalid userId format");
+        }
+
+        console.log("userId", userId);
+        console.log("userId type", typeof userId);
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return { success: false, message: "No user found" };
+        }
+
+        const datas: IUserPostDetails = {
+            id: user._id,
+            name: user.name,
+            avatar: {
+                imageUrl: user.avatar?.imageUrl || '',
+                originalname: user.avatar?.originalname || '',
+            },
+        };
+
+        return { success: true, message: "Data found", data: datas };
+    } catch (error) {
+        console.log("Error fetching user data", error);
+        const err = error as Error;
+        throw new Error(`Error fetching user data: ${err.message}`);
+    }
+}
+    
     
 }

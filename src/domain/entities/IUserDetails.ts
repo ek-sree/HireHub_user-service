@@ -10,6 +10,7 @@ export interface IUserInfo {
     education?:string[] | undefined;
 } 
 export interface IUserPostDetails {
+    id:string;
     name?: string;
     avatar?: {
         imageUrl: string;

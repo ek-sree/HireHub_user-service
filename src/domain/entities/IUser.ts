@@ -14,5 +14,7 @@ export interface IUser {
     resume?:string[];
     avatar?: { imageUrl: string; originalname: string };
     profileTitle?:string;
+    followers?: string[];
+    following?: string[];
     created_at?:Date;
 }

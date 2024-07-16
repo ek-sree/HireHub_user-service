@@ -83,7 +83,7 @@ class UserController {
         }
     }
     
-    async fetchedDetails(data:{userId:string}){
+    async fetchedDetails(data:{userId:string, followerId:string}){
         try {
             console.log("daraaaaaaa",data);
             
@@ -225,7 +225,6 @@ class UserController {
     async fetchCoverImg(data:{userId:string}){
         try {
             const userId = data.userId;
-            console.log("get cover img",userId);
             
             const result = await this.userService.getCoverImg(userId);
             return result;
@@ -237,7 +236,6 @@ class UserController {
 
     async fetchDataForPost(data: { userIds: string[] }): Promise<{ success: boolean; message: string; data?: IUserPostDetails[] }> {
         try {
-            console.log("man pleaseee", data);
     
             const results = await Promise.all(data.userIds.map(async (userId) => {
                 return this.userService.fetchUserDatasForPost(userId);
@@ -262,7 +260,44 @@ class UserController {
             throw new Error("Error occurred while fetching user data");
         }
     }
+   
+    async addFollowers(data: { userId: string; followerId: { id: string } }): Promise<{ success: boolean; message: string }> {
+        try {
+            const { userId, followerId: { id: followerId } } = data;
+            console.log("both ids :", userId, followerId);
+            
+            const result = await this.userService.addFollowers(userId, followerId);
+            return result;
+        } catch (error) {
+            console.error("Error following user:", error);
+            throw new Error("Error occurred while following user");
+        }
+    }
     
+    async unfollow(data:{userId:string, followerId:string}):Promise<{success:boolean,message:string}>{
+        try {
+            const userId = data.userId;
+            const followerId = data.followerId;
+            const result = await this.userService.removeFollowers(userId,followerId)
+            return result
+        } catch (error) {
+            console.error("Error unfollowing user:", error);
+            throw new Error("Error occurred while unfollowing user");
+        }
+    }
+
+    async searchUsers(data:{searchQuery:string}){
+        try {
+            const searchQuery = data.searchQuery;
+            console.log("search dataa controooooo",searchQuery);
+            
+            const result = await this.userService.searchUser(searchQuery);
+            return result;            
+        } catch (error) {
+            console.error("Error searching users:", error);
+            throw new Error("Error occurred while searching users");
+        }
+    }
     
 }
 

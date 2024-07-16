@@ -1,6 +1,8 @@
 export interface IUserDetails {
     name: string;
     profileTitle?: string;
+    followers?:string[];
+    following?:string[];
 }
 
 export interface IUserInfo {

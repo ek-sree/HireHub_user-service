@@ -161,12 +161,12 @@ class UserService {
         }
     }
 
-    async fetchUserDetails(data:{userId: string}): Promise<{success: boolean, message:string, details?:IUserDetails}>{
+    async fetchUserDetails(data:{userId: string, followerId:string}): Promise<{success: boolean, message:string, details?:IUserDetails}>{
         try {
-            const { userId } = data;
-        console.log("email", userId);
+            const { userId, followerId } = data;
+        console.log("email alla", userId, followerId);
             
-            const result = await this.userRepo.findDetails(userId)
+            const result = await this.userRepo.findDetails(userId,followerId)
             if(!result.success){
                 return{success: false, message:"cant find details"}
             }
@@ -454,7 +454,46 @@ class UserService {
         }
     }
     
-      
+    async addFollowers(userId: string, followerId: string): Promise<{ success: boolean; message: string }> {
+        try {
+            const result = await this.userRepo.createFollow(userId, followerId);
+            if (!result.success) {
+                return { success: result.success, message: result.message };
+            }
+            return { success: result.success, message: result.message };
+        } catch (error) {
+            console.error("Error following:", error);
+            throw new Error("Error occurred while following");
+        }
+    }  
+    
+    async removeFollowers(userId:string, followerId:string):Promise<{success:boolean, message:string}>{
+        try {
+            const result = await this.userRepo.deleteFollow(userId, followerId);
+            if(!result.success){
+                return {success:result.success, message:result.message}
+            }
+            return {success:true, message:result.message}
+        } catch (error) {
+            console.error("Error unfollowing:", error);
+            throw new Error("Error occurred while unfollowing");
+        }
+    }
+
+    async searchUser(searchQuery:string):Promise<{success:boolean, message:string, data?:IUserPostDetails[]}>{
+        try {
+            console.log("searchhhhh",searchQuery);
+            
+            const result = await this.userRepo.searchUsers(searchQuery);
+            if(!result){
+                return {success: false, message:"No users found"}
+            }
+            return {success:true, message:"User found", data:result.data}
+        } catch (error) {
+            console.error("Error searching users:", error);
+            throw new Error("Error occurred while searching users");
+        }
+    }
     
 }
 

@@ -70,8 +70,6 @@ export class AdminRepostory implements IAdminRepository {
 
     async searchByName(searchValue: string): Promise<IUser[]> {
         try {
-            console.log("searchValue type:", typeof searchValue);  
-            console.log("searchValue content:", searchValue);  
     
             if (typeof searchValue !== 'string') {
                 throw new Error("Invalid search value");

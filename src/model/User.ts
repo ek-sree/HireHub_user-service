@@ -74,6 +74,16 @@ const userSchema: Schema = new Schema({
     profileTitle: {
         type: String
     },
+    followers: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'User',
+        default: []
+    },
+    following: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'User',
+        default: []
+    },
     created_at:{
         type:Date,
         required:true,

@@ -84,6 +84,18 @@ export default class MessageHandler {
                 response = await userController.fetchDataForPost(data);
                 break;  
 
+            case 'follow':
+                response = await userController.addFollowers(data);
+                break; 
+                
+            case 'unfollow':
+                response = await userController.unfollow(data);
+                break; 
+                
+            case 'search-users'  :
+                response = await userController.searchUsers(data);
+                break;  
+
             default:
                 response = { error: 'Operation not supported' };
                 break;

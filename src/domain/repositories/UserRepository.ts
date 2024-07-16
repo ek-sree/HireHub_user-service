@@ -107,7 +107,7 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async findDetails(userId: string): Promise<{success:boolean,message:string, result?:IUserDetails}> {
+    async findDetails(userId: string, followerId:string): Promise<{success:boolean,message:string, result?:IUserDetails}> {
         try {
             if (!mongoose.Types.ObjectId.isValid(userId)) {
                 return { success: false, message: "Invalid user ID format" };
@@ -117,7 +117,12 @@ export class UserRepository implements IUserRepository {
             if (!user) {
                 return { success: false, message: "User not found" };
             }
-            const result = { name: user.name, title: user.profileTitle };
+            console.log("follower id isFollowing",followerId);
+            
+            const isFollowing = user.followers?.some(follower => follower.toString() === followerId);
+            console.log("isFollowing",isFollowing);
+            
+            const result = { name: user.name, title: user.profileTitle, followers: user.followers, following: user.following , isFollowing};
     
             return { success: true, message: "Found data", result };
         } catch (error) {
@@ -374,7 +379,6 @@ async saveCoverImg(email: string, image: string, originalname: string): Promise<
 async getCoverImage(userId: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
     try {
        
-console.log("is porb hereeee?", userId);
 
         const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
         if (!user) {
@@ -420,5 +424,90 @@ async findUserDetailsForPost(userId: string): Promise<{ success: boolean; messag
     }
 }
     
+async createFollow(userId: string, followerId: string): Promise<{ success: boolean, message: string }> {
+    try {
+
+        const followerUser = await User.findOne({ _id: new mongoose.Types.ObjectId(followerId) });
+        if (!followerUser) {
+            return { success: false, message: "No follow user found" };
+        }
+        if (!followerUser.followers) {
+            followerUser.followers = [];
+        }
+        if (!followerUser.followers.includes(userId)) {
+            followerUser.followers.push(userId);
+        }
+        await followerUser.save();
+
+        const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+        if (!user) {
+            return { success: false, message: "No following user found" };
+        }
+        if (!user.following) {
+            user.following = [];
+        }
+        if (!user.following.includes(followerId)) {
+            user.following.push(followerId);
+        }
+        await user.save();
+
+        return { success: true, message: "Followers and following list updated" };
+    } catch (error) {
+        console.log("Error following", error);
+        const err = error as Error;
+        throw new Error(`Error following: ${err.message}`);
+    }
+}
+
+
+async deleteFollow(userId:string, followerId:string): Promise<{success:boolean, message:string}>{
+    try {
+        const followerUser = await User.findOne({_id: new mongoose.Types.ObjectId(followerId)});
+        if(!followerUser){
+            return {success:false,  message:"No user found"}
+        }
+        followerUser.followers = followerUser.followers?.filter((id) => id.toString() !== userId);
+        
+        await followerUser.save();
+        const user = await User.findOne({_id: new mongoose.Types.ObjectId(userId)});
+        if(!user){
+            return {success:false, message:"No follow user found"}
+        }
+        user.following = user.following?.filter((id)=>id.toString() !== followerId);
+        
+        await user.save();
+        return {success:true, message:"unfollowed successFully"}
+    } catch (error) {
+        console.log("Error unfollowing", error);
+        const err = error as Error;
+        throw new Error(`Error unfollowing: ${err.message}`);
+    }
+}
+
+async searchUsers(searchQuery: string): Promise<{ success: boolean, message: string, data?: IUserPostDetails[] }> {
+    try {
+        console.log("searchQuery:", searchQuery);
+
+        const query: any = { status: false };
+        if (searchQuery) {
+            query.name = { $regex: new RegExp(searchQuery, 'i') };
+        }
+
+        console.log("Executing query:", query); 
+
+        const users = await User.find(query); 
+        console.log("search data:", users);
+
+        if (!users || users.length === 0) {
+            return { success: false, message: "No users found" };
+        }
+
+        return { success: true, message: "Data found", data: users as IUserPostDetails[] };
+    } catch (error) {
+        console.log("Error searching users:", error);
+        const err = error as Error;
+        throw new Error(`Error searching users: ${err.message}`);
+    }
+} 
     
 }

@@ -421,7 +421,6 @@ class UserService {
 
     async fetchUserDatasForPost(userId: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails }> {
         try {
-            console.log("hereeeeead", userId);
     
             const result = await this.userRepo.findUserDetailsForPost(userId);
             if (!result || !result.data) {
@@ -480,15 +479,26 @@ class UserService {
         }
     }
 
-    async searchUser(searchQuery:string):Promise<{success:boolean, message:string, data?:IUserPostDetails[]}>{
+    async searchUser(searchQuery: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails[] }> {
         try {
-            console.log("searchhhhh",searchQuery);
-            
             const result = await this.userRepo.searchUsers(searchQuery);
-            if(!result){
-                return {success: false, message:"No users found"}
+            if (!result || !result.data) {
+                return { success: false, message: "No users found" };
             }
-            return {success:true, message:"User found", data:result.data}
+            console.log("result data", result);
+    
+            const postWithImage = await Promise.all(result.data.map(async (post) => {
+                if (post.avatar && post.avatar.imageUrl) {
+                    const files = [{ url: post.avatar.imageUrl, filename: post.avatar.originalname }];
+                    const imageUrlData = await fetchFileFromS3(files);
+                    if (imageUrlData.length > 0) {
+                        post.avatar.imageUrl = imageUrlData[0].url;
+                    }
+                }
+                return post;
+            }));
+    
+            return { success: true, message: "User found", data: postWithImage };
         } catch (error) {
             console.error("Error searching users:", error);
             throw new Error("Error occurred while searching users");

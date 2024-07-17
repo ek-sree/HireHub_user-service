@@ -39,13 +39,12 @@ export async function uploadFileToS3(fileBuffer: Buffer, originalName: string): 
 
 export async function fetchFileFromS3(files: { url: string | undefined; filename: string }[]): Promise<{ url: string; filename: string }[]> {
     const s3Promises = files.map(async (file) => {
-        // Ensure file.url is defined
-        const url = file.url || ""; // Default to an empty string if undefined
+        const url = file.url || ""; 
         const key = url.split('/').pop()?.split('?')[0];
 
         if (!key) {
             console.error("File key is undefined for:", file);
-            return { url: "", filename: file.filename }; // Handle the error as needed
+            return { url: "", filename: file.filename }; 
         }
 
         const getObjectParams = {

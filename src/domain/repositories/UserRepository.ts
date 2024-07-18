@@ -117,10 +117,8 @@ export class UserRepository implements IUserRepository {
             if (!user) {
                 return { success: false, message: "User not found" };
             }
-            console.log("follower id isFollowing",followerId);
             
             const isFollowing = user.followers?.some(follower => follower.toString() === followerId);
-            console.log("isFollowing",isFollowing);
             
             const result = { name: user.name, title: user.profileTitle, followers: user.followers, following: user.following , isFollowing};
     
@@ -395,14 +393,11 @@ async getCoverImage(userId: string): Promise<{ success: boolean; message: string
     
 async findUserDetailsForPost(userId: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails }> {
     try {
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            throw new Error("Invalid userId format");
-        }
 
         console.log("userId", userId);
         console.log("userId type", typeof userId);
 
-        const user = await User.findById(userId);
+        const user = await User.findById({_id: new mongoose.Types.ObjectId(userId)});
         if (!user) {
             return { success: false, message: "No user found" };
         }

@@ -329,7 +329,7 @@ class UserService {
             }
             const response = await deleteFileFromS3(url);
             if(!response.success){
-                return {success:false, message:"cant delete deleted from s3"}
+                return {success:false, message:"cant delete file from s3"}
             }
             return {success:true, message:"Deleted file from s3 too"}
         } catch (error) {

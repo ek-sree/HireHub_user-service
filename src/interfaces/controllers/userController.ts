@@ -225,6 +225,7 @@ class UserController {
     async fetchCoverImg(data:{userId:string}){
         try {
             const userId = data.userId;
+            console.log("Id undoooooo",userId);
             
             const result = await this.userService.getCoverImg(userId);
             return result;

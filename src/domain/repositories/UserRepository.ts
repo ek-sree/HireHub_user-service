@@ -377,6 +377,9 @@ async saveCoverImg(email: string, image: string, originalname: string): Promise<
 async getCoverImage(userId: string): Promise<{ success: boolean; message: string; data?: { imageUrl: string; originalname: string } }> {
     try {
        
+       if (!userId) {
+        return { success: false, message: "Invalid user ID" };
+    }
 
         const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
         if (!user) {

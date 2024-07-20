@@ -401,7 +401,6 @@ class UserService {
 
     async getCoverImg(userId:string):Promise<{success:boolean, message:string, data?:{ imageUrl: string; originalname: string }}>{
         try {
-            console.log("Id undoooooo222222222222",userId);
             const result = await this.userRepo.getCoverImage(userId);
             if (!result || !result.data || !result.data.imageUrl) {
                 return { success: true, message: "No profile picture found", data: { imageUrl: "/default-profile.jpg", originalname: "default-profile.jpg" } };

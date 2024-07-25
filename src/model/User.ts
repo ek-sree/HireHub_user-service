@@ -84,6 +84,14 @@ const userSchema: Schema = new Schema({
         ref: 'User',
         default: []
     },
+    isOnline: {
+        type: Boolean,
+        default: true
+    },
+    lastSeen: {
+        type: Date,
+        default: Date.now
+    },
     created_at:{
         type:Date,
         required:true,

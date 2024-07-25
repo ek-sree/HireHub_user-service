@@ -423,11 +423,13 @@ class UserService {
         try {
     
             const result = await this.userRepo.findUserDetailsForPost(userId);
+            console.log("ividaaa undooo?",result);
+            
             if (!result || !result.data) {
                 return { success: false, message: "No data found" };
             }
     
-            const { id,name, avatar } = result.data;
+            const { id,name, avatar, isOnline } = result.data;
             if (avatar) {
                 const files = [{ url: avatar.imageUrl, filename: avatar.originalname }];
                 const fetchedAvatar = await fetchFileFromS3(files);
@@ -441,7 +443,7 @@ class UserService {
                     return {
                         success: true,
                         message: "Data found",
-                        data: { id, name, avatar: avatarData },
+                        data: { id, name,isOnline, avatar: avatarData },
                     };
                 }
             }

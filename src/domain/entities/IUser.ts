@@ -1,20 +1,22 @@
 export interface IUser {
-    _id?:string;
+    _id?: string;
     email: string;
     name: string;
     phone?: string;
     password: string;
-    isAdmin?:boolean;
+    isAdmin?: boolean;
     coverphoto?: { imageUrl: string; originalname: string };
-    education?:string[];
-    place?:string[];
-    skills?:string[];
+    education?: string[];
+    place?: string[];
+    skills?: string[];
     cv?: { url: string, filename: string }[];
-    status?:boolean;
-    resume?:string[];
+    status?: boolean;
+    resume?: string[];
     avatar?: { imageUrl: string; originalname: string };
-    profileTitle?:string;
+    profileTitle?: string;
     followers?: string[];
     following?: string[];
-    created_at?:Date;
+    isOnline?: boolean;
+    lastSeen?: Date;
+    created_at?: Date;
 }

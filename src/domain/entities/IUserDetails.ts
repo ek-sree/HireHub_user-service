@@ -18,4 +18,5 @@ export interface IUserPostDetails {
         imageUrl: string;
         originalname: string;
     };
+    isOnline?:boolean
 }

@@ -243,6 +243,7 @@ class UserController {
             }));
     
             const successfulResults = results.filter(result => result.success).map(result => result.data);
+    console.log("successfull res",successfulResults);
     
             if (successfulResults.length > 0) {
                 return {

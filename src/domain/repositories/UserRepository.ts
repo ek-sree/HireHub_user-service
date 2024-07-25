@@ -56,6 +56,7 @@ export class UserRepository implements IUserRepository {
             if (user_data.status === true) {
                 return { success: false, message: "Your account is blocked" };
             }
+    console.log("login dataaaaaaaaaa",user_data);
     
             return { success: true, message: "User found", user_data };
         } catch (error) {
@@ -412,6 +413,7 @@ async findUserDetailsForPost(userId: string): Promise<{ success: boolean; messag
                 imageUrl: user.avatar?.imageUrl || '',
                 originalname: user.avatar?.originalname || '',
             },
+            isOnline:user.isOnline
         };
 console.log("toughttt one",datas);
 

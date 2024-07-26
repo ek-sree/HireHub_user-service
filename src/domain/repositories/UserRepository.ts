@@ -57,7 +57,8 @@ export class UserRepository implements IUserRepository {
                 return { success: false, message: "Your account is blocked" };
             }
     console.log("login dataaaaaaaaaa",user_data);
-    
+    user_data.isOnline=true
+    await user_data.save();
             return { success: true, message: "User found", user_data };
         } catch (error) {
             const err = error as Error;
@@ -510,5 +511,22 @@ async searchUsers(searchQuery: string): Promise<{ success: boolean, message: str
         throw new Error(`Error searching users: ${err.message}`);
     }
 } 
+
+async logoutUser(userId:string):Promise<{success:boolean, message:string,  data?: { isOnline: boolean, lastSeen: Date }}>{
+    try {
+        const user = await User.findOne({_id: new mongoose.Types.ObjectId(userId)});
+        if(!user){
+            return {success:false, message:"No user found"}
+        }
+        user.isOnline = false;
+        user.lastSeen = new Date();
+        await user.save();
+        return {success:true, message:"isOnline is updated", data: { isOnline: user.isOnline, lastSeen: user.lastSeen }}
+    } catch (error) {
+        console.log("Error logout user:", error);
+        const err = error as Error;
+        throw new Error(`Error logout users: ${err.message}`);
+    }
+}
     
 }

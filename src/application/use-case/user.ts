@@ -506,6 +506,19 @@ class UserService {
             throw new Error("Error occurred while searching users");
         }
     }
+
+    async logout(userId:string):Promise<{success:boolean, message:string, data?:{ isOnline: boolean, lastSeen: Date }}>{
+        try {
+            const result = await this.userRepo.logoutUser(userId);
+            if(!result || !result.success){
+                return {success:false, message:"no result found"}
+            }
+            return {success:true, message:"Updated logout", data:result.data}
+        } catch (error) {
+            console.error("Error logout users:", error);
+            throw new Error("Error occurred while logout users");
+        }
+    }
     
 }
 

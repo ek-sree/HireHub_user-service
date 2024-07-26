@@ -300,6 +300,17 @@ class UserController {
             throw new Error("Error occurred while searching users");
         }
     }
+
+    async logout(data:{userId:string}){
+        try {
+            const userId = data.userId;
+            const result = await this.userService.logout(userId);
+            return result;
+        } catch (error) {
+            console.error("Error logout users:", error);
+            throw new Error("Error occurred while logout users");
+        }
+    }
     
 }
 

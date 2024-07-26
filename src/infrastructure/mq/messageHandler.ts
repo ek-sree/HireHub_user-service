@@ -96,6 +96,10 @@ export default class MessageHandler {
                 response = await userController.searchUsers(data);
                 break;  
 
+            case 'user-log-out':
+                response = await userController.logout(data);
+                break;    
+
             default:
                 response = { error: 'Operation not supported' };
                 break;

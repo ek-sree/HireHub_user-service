@@ -94,7 +94,6 @@ class UserService {
 
             const payload = ticket.getPayload();
             if (!payload) throw new Error('Invalid Google credentials');
-            console.log("payload", payload);
 
             const email = payload.email;
             const name = payload.name;
@@ -111,7 +110,7 @@ class UserService {
                     password: 'defaultpassword',
                 } as IUser);
             }
-            console.log("saved user details", user);
+            console.log("saved user details google auth", user);
 
             return { success: true, user_data: user };
         } catch (error) {

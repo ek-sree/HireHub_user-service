@@ -54,7 +54,7 @@ export async function fetchFileFromS3(files: { url: string | undefined; filename
         const command = new GetObjectCommand(getObjectParams);
         
         try {
-            const imageUrl = await getSignedUrl(s3, command, { expiresIn: 604800 });
+            const imageUrl = await getSignedUrl(s3, command);
             return { url: imageUrl, filename: file.filename };
         } catch (error) {
             console.error("Error getting signed URL:", error);

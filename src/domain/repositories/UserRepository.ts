@@ -10,7 +10,13 @@ export class UserRepository implements IUserRepository {
     async findByEmail(email: string): Promise<IUser | null> {
         try {
             const user = await User.findOne({ email }).exec();
-            return user;
+            if(!user){
+                return null;
+            }else{
+                user.isOnline=true;
+                await user.save();
+                return user;
+            }
         } catch (error) {
             const err = error as Error;
             throw new Error(`Error finding user by email: ${err.message}`);
@@ -28,7 +34,7 @@ export class UserRepository implements IUserRepository {
             const { _id, ...userWithoutId } = userWithHashedPassword;
             const newUser = new User(userWithoutId);
             console.log("user ethiyoo", newUser);
-            
+            newUser.isOnline=true;
             await newUser.save();
             console.log("saved and return", newUser);
             

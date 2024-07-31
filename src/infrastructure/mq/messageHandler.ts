@@ -98,6 +98,14 @@ export default class MessageHandler {
 
             case 'user-log-out':
                 response = await userController.logout(data);
+                break;  
+                
+            case 'user-reports':
+                response = await adminController.fetchUsersReport();
+                break;  
+                
+            case 'blocked-user-reports':
+                response = await adminController.getBlockedUser();
                 break;    
 
             default:

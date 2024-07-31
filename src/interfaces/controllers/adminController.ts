@@ -51,6 +51,26 @@ class AdminController {
         throw new Error("Error occured")
     }
     }
+
+    async fetchUsersReport(){
+        try {
+            const result = await this.adminService.fetchUsersForReports();
+            return result;
+        } catch (error) {
+            console.error("Error fetching user:", error);
+            throw new Error("Error occured")
+        }
+    }
+
+    async getBlockedUser(){
+        try {
+            const result = await this.adminService.fetchBlockedUsers();
+            return result;
+        } catch (error) {
+            console.error("Error fetching blocked user:", error);
+            throw new Error("Error occured")
+        }
+    }
 }
 
 export const adminController = new AdminController();

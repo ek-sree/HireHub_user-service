@@ -87,4 +87,31 @@ export class AdminRepostory implements IAdminRepository {
             throw new Error(`Error searching user list: ${err.message}`);
         }
     }
+
+    async findUsersReports():Promise<{success: boolean, message:string, totalUsers:number}>{
+        try {
+            let totalUsers;
+            const users = await User.find({}).select('-password');
+            if(!users){
+                return{success:true, message:"Zeor users found", totalUsers:0}
+            }
+            totalUsers = await User.countDocuments();
+            return {success:true, message:"User data got", totalUsers}
+        } catch (error) {
+            console.error("Error finding user:", error);
+            const err = error as Error;
+            throw new Error(`Error findding user list: ${err.message}`);
+        }
+    }
+
+    async findBLockedUsers():Promise<{success:boolean, message:string, data?:number}>{
+        try {
+            const users = await User.find({status:true}).countDocuments();
+            return {success:true, message:"Data found",data:users}
+        } catch (error) {
+            console.error("Error finding blocked user:", error);
+            const err = error as Error;
+            throw new Error(`Error findding blocked user list: ${err.message}`);
+        }
+    }
 }

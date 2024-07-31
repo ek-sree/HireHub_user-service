@@ -80,6 +80,32 @@ async fetchUsers(page: number, limit: number): Promise<any> {
             throw error;
         }
     }
+
+    async fetchUsersForReports():Promise<{success:boolean, message:string, data?:number}>{
+        try {
+            const result = await this.adminRepo.findUsersReports();
+            return{success:true, message:"user data got", data:result.totalUsers}
+        } catch (error) {
+            console.log("Error occurred while fetching user list", error);
+            if (error instanceof Error) {
+                throw new Error(`Error while fetching user list: ${error.message}`);
+            }
+            throw error;
+        }
+    }
+
+    async fetchBlockedUsers():Promise<{success:boolean, message:string, data?:number}>{
+        try {
+            const result = await this.adminRepo.findBLockedUsers();
+            return {success:result.success, message:result.message, data:result.data}
+        } catch (error) {
+            console.log("Error occurred while fetching blocked user list", error);
+            if (error instanceof Error) {
+                throw new Error(`Error while fetching blocked user list: ${error.message}`);
+            }
+            throw error;
+        }
+    }
 }
 
 export { AdminService }

@@ -58,7 +58,6 @@ class UserController {
 
     async addNewProFileTitle(data: {data: {email:string, title: {title: string}}}){
         try {
-            console.log("data in controller", data);
             const { email, title } = data.data;
             const result = await this.userService.addNewTitle({email, title: title.title});
             return result;
@@ -70,9 +69,7 @@ class UserController {
 
     async editDetails(data: { data: { email: string, title: string, name: string } }) {
         try {
-            console.log("Received data for edit user details:", data);
             const { email, title, name } = data.data;
-            console.log("Destructured values:", email, title, name);
             
             const result = await this.userService.updateDetails({ email, name, title });
             console.log("Update details result:", result);
@@ -85,7 +82,6 @@ class UserController {
     
     async fetchedDetails(data:{userId:string, followerId:string}){
         try {
-            console.log("daraaaaaaa",data);
             
             const result = await this.userService.fetchUserDetails(data);
             return result;
@@ -107,9 +103,7 @@ class UserController {
 
     async editedUserInfo(data: { data: { email: string, phone: string, education: string[], place: string[] } }){
         try {
-            console.log("logging data controller", data);
             const { email, phone, education, place } = data.data;
-            console.log("Destructured values:", email, phone, education, place);
             
             const result = await this.userService.editUserInfo({ email, phone, education, place });
             return result;
@@ -124,7 +118,6 @@ class UserController {
             console.log("dddddddd",data);
             
             const {email, skills} = data;
-            console.log("destructure", email, skills);
             const result = await this.userService.addSkills({email,skills})
             return result;
         } catch (error) {
@@ -178,7 +171,6 @@ class UserController {
 
     async deleteCv(data:{url:string, email: string}){
         try {
-            console.log("remove data", data);
             
             const url = data.url;
             const email = data.email;
@@ -225,7 +217,6 @@ class UserController {
     async fetchCoverImg(data:{userId:string}){
         try {
             const userId = data.userId;
-            console.log("Id undoooooo",userId);
             
             const result = await this.userService.getCoverImg(userId);
             return result;
@@ -243,7 +234,6 @@ class UserController {
             }));
     
             const successfulResults = results.filter(result => result.success).map(result => result.data);
-    console.log("successfull res",successfulResults);
     
             if (successfulResults.length > 0) {
                 return {
@@ -266,7 +256,6 @@ class UserController {
     async addFollowers(data: { userId: string; followerId: { id: string } }): Promise<{ success: boolean; message: string }> {
         try {
             const { userId, followerId: { id: followerId } } = data;
-            console.log("both ids :", userId, followerId);
             
             const result = await this.userService.addFollowers(userId, followerId);
             return result;
@@ -291,7 +280,6 @@ class UserController {
     async searchUsers(data:{searchQuery:string}){
         try {
             const searchQuery = data.searchQuery;
-            console.log("search dataa controooooo",searchQuery);
             
             const result = await this.userService.searchUser(searchQuery);
             return result;            
@@ -312,6 +300,16 @@ class UserController {
         }
     }
     
+    async friendSuggestions(data:{userId:string}){
+        try {
+            const userId = data.userId;
+            const result = await this.userService.friendSuggestion(userId);
+            return result;
+        } catch (error) {
+            console.error("Error finding friend suggestion:", error);
+            throw new Error("Error occurred while finding friend suggestion");
+        }
+    }
 }
 
 export const userController = new UserController();

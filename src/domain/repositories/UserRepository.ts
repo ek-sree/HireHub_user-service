@@ -1,6 +1,6 @@
 import { IUserRepository } from './IUserRepository';
 import { IUser } from '../entities/IUser';
-import { User } from '../../model/User';
+import { IUserDocument, User } from '../../model/User';
 import bcrypt from 'bcrypt';
 import { IUserDetails, IUserInfo, IUserPostDetails } from '../entities/IUserDetails';
 import mongoose from 'mongoose';
@@ -501,10 +501,7 @@ async searchUsers(searchQuery: string): Promise<{ success: boolean, message: str
             query.name = { $regex: new RegExp(searchQuery, 'i') };
         }
 
-        console.log("Executing query:", query); 
-
         const users = await User.find(query); 
-        console.log("search data:", users);
 
         if (!users || users.length === 0) {
             return { success: false, message: "No users found" };
@@ -534,5 +531,76 @@ async logoutUser(userId:string):Promise<{success:boolean, message:string,  data?
         throw new Error(`Error logout users: ${err.message}`);
     }
 }
+
+async findFriends(userId: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails[] }> {
+    try {
+        const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+        if (!user) {
+            return { success: false, message: "No user found" };
+        }
+
+        let suggestedFriends: IUserDocument[] = [];
+
+        if (user.skills && user.skills.length > 0) {
+            suggestedFriends = await User.find({
+                $and: [
+                    { _id: { $ne: user._id } },
+                    { skills: { $elemMatch: { $in: user.skills } } },
+                    { _id: { $nin: user.following || [] } }
+                ]
+            }).limit(4);
+        }
+console.log("skill match",suggestedFriends);
+
+        if (suggestedFriends.length < 4 && user.followers && user.followers.length > 0) {
+            const friendsOfFriends = await User.find({
+                $and: [
+                    { _id: { $ne: user._id } },
+                    { _id: { $nin: [...(user.following || []), ...suggestedFriends.map(f => f._id)] } },
+                    { followers: { $in: user.followers } }
+                ]
+            }).limit(4 - suggestedFriends.length);
+
+            suggestedFriends = [...suggestedFriends, ...friendsOfFriends];
+        }
+console.log("friendsOf friendd sugg",suggestedFriends);
+
+        if (suggestedFriends.length < 4) {
+            const randomUsers = await User.aggregate([
+                {
+                    $match: {
+                        $and: [
+                            { _id: { $ne: new mongoose.Types.ObjectId(userId) } },
+                            { _id: { $nin: [...(user.following || []), ...suggestedFriends.map(f => f._id)] } }
+                        ]
+                    }
+                },
+                { $sample: { size: 4 - suggestedFriends.length } }
+            ]);
+
+            suggestedFriends = [...suggestedFriends, ...randomUsers];
+        }
+
+        const suggestedFriendsDetails: IUserPostDetails[] = suggestedFriends.map(friend => ({
+            id: friend._id ? friend._id.toString() : '',
+            name: friend.name,
+            avatar: friend.avatar,
+            isOnline: friend.isOnline
+        }));
+console.log("data got", suggestedFriendsDetails);
+
+        return {
+            success: true,
+            message: "Friend suggestions found",
+            data: suggestedFriendsDetails
+        };
+
+    } catch (error) {
+        console.log("Error find friend suggestion:", error);
+        const err = error as Error;
+        throw new Error(`Error find friend suggestion: ${err.message}`);
+    }
+}
+
     
 }

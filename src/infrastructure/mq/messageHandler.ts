@@ -108,6 +108,10 @@ export default class MessageHandler {
                 response = await adminController.getBlockedUser();
                 break;    
 
+            case 'friend-suggesion':
+                response = await userController.friendSuggestions(data);
+                break;    
+
             default:
                 response = { error: 'Operation not supported' };
                 break;

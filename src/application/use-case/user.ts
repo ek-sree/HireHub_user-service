@@ -518,6 +518,46 @@ class UserService {
             throw new Error("Error occurred while logout users");
         }
     }
+
+    async friendSuggestion(userId: string): Promise<{ success: boolean, message: string, data?: IUserPostDetails[] }> {
+        try {
+            const result = await this.userRepo.findFriends(userId);
+            if (result && result.data) {
+                const friendsWithAvatars = result.data.filter(friend => friend.avatar && friend.avatar.imageUrl);
+                const files = friendsWithAvatars.map(friend => ({
+                    url: friend.avatar!.imageUrl,
+                    filename: friend.avatar!.originalname
+                }));
+    
+                const fetchedImages = await fetchFileFromS3(files);
+    
+                const updatedFriends = result.data.map(friend => {
+                    if (friend.avatar && friend.avatar.imageUrl) {
+                        const fetchedImage = fetchedImages.find(image => image.filename === friend.avatar!.originalname);
+                        if (fetchedImage) {
+                            friend.avatar = {
+                                imageUrl: fetchedImage.url,
+                                originalname: friend.avatar.originalname
+                            };
+                        }
+                    }
+                    return friend;
+                });
+    
+                return {
+                    success: true,
+                    message: "Friend suggestions found",
+                    data: updatedFriends
+                };
+            }
+    
+            return { success: false, message: "No friends found" };
+    
+        } catch (error) {
+            console.error("Error friend suggestion:", error);
+            throw new Error("Error occurred while friend suggestion");
+        }
+    }
     
 }
 

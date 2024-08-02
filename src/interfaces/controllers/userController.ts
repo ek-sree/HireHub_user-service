@@ -115,7 +115,6 @@ class UserController {
 
     async addedUserSkills(data:{email:string, skills:string[]}){
         try {
-            console.log("dddddddd",data);
             
             const {email, skills} = data;
             const result = await this.userService.addSkills({email,skills})

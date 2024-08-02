@@ -486,7 +486,6 @@ class UserService {
             if (!result || !result.data) {
                 return { success: false, message: "No users found" };
             }
-            console.log("result data", result);
     
             const postWithImage = await Promise.all(result.data.map(async (post) => {
                 if (post.avatar && post.avatar.imageUrl) {

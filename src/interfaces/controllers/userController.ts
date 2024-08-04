@@ -72,7 +72,6 @@ class UserController {
             const { email, title, name } = data.data;
             
             const result = await this.userService.updateDetails({ email, name, title });
-            console.log("Update details result:", result);
             return result;
         } catch (error) {
             console.error("Error editing user details:", error);

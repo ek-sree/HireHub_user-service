@@ -422,7 +422,6 @@ async findUserDetailsForPost(userId: string): Promise<{ success: boolean; messag
             },
             isOnline:user.isOnline
         };
-console.log("toughttt one",datas);
 
         return { success: true, message: "Data found", data: datas };
     } catch (error) {

@@ -48,12 +48,8 @@ async fetchUsers(page: number, limit: number): Promise<any> {
 
 
     async blockedUser(userId: string): Promise<{success: boolean, message: string}> {
-        try {
-            console.log("sent id for block", userId);
-            
-            const result = await this.adminRepo.blockUnblock(userId);
-            console.log("block message.......", result);
-            
+        try {            
+            const result = await this.adminRepo.blockUnblock(userId);            
             return result;
         } catch (error) {
             if (error instanceof Error) {
@@ -65,8 +61,6 @@ async fetchUsers(page: number, limit: number): Promise<any> {
 
     async searchUser(searchValue: string): Promise<{ success: boolean, message: string, users?: IUser[] | undefined }> {
         try {
-            console.log("Constructed searchValue:", searchValue);
-
             const users = await this.adminRepo.searchByName(searchValue);
             if (!users || users.length === 0) {
                 return { success: false, message: "No user found" };

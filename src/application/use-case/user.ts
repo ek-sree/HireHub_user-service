@@ -5,7 +5,6 @@ import { sendOtpEmail } from "../../utils/emailVerification";
 import { OAuth2Client } from 'google-auth-library';
 import config from "../../infrastructure/config";
 import { IUserDetails, IUserInfo, IUserPostDetails } from "../../domain/entities/IUserDetails";
-import sharp from "sharp";
 import { deleteFileFromS3, fetchFileFromS3, uploadFileToS3 } from "../../infrastructure/s3/s3Action";
 import { Buffer } from 'buffer';
 
@@ -24,7 +23,6 @@ class UserService {
             if (existingUser) {
                 return { success: false, message: "Email already exists" };
             } else {
-                console.log("no user found");
                 const otp = generateOtp();
                 console.log("this is generated otppp", otp);
 
@@ -42,8 +40,6 @@ class UserService {
 
     async verifyOtp(userData: IUser): Promise<any> {
         try {
-            console.log("isecase", userData);
-
             const savedUser = await this.userRepo.save(userData);
             console.log("ready to send success message", savedUser);
             return {
@@ -61,7 +57,6 @@ class UserService {
 
     async resendOtp(email: string): Promise<any> {
         try {
-            console.log("Redend otp", email);
             const otp = generateOtp();
             await sendOtpEmail(email, otp);
             return { success: true, newOtp: otp };
@@ -101,8 +96,6 @@ class UserService {
             if (!email) throw new Error('Email not available in Google credentials');
 
             let user = await this.userRepo.findByEmail(email);
-            console.log("google auth", user);
-
             if (!user) {
                 user = await this.userRepo.save({
                     email,
@@ -123,9 +116,7 @@ class UserService {
 
     async addNewTitle(data: {email: string, title: string}): Promise<{success:boolean, message:string, result?: string}>{
         try {
-            const {email, title} = data;
-            console.log("service data",email, title);
-            
+            const {email, title} = data;            
             const result = await this.userRepo.addTitle(email,title);
             return result;
         } catch (error) {
@@ -137,9 +128,7 @@ class UserService {
     }
 
     async updateDetails(data:{email: string, title: string, name: string}): Promise<{success: boolean, message:string, details?: IUserDetails}>{
-        try {
-            console.log("data form controller",data);
-            
+        try {            
             const {email, name, title} = data;
             const result = await this.userRepo.editDetails(email,name,title);
             console.log(".......",name);
@@ -163,7 +152,6 @@ class UserService {
     async fetchUserDetails(data:{userId: string, followerId:string}): Promise<{success: boolean, message:string, details?:IUserDetails}>{
         try {
             const { userId, followerId } = data;
-        console.log("email alla", userId, followerId);
             
             const result = await this.userRepo.findDetails(userId,followerId)
             if(!result.success){
@@ -202,9 +190,7 @@ class UserService {
 
     async editUserInfo(data: { email: string, phone: string, education: string[], place: string[] }): Promise<{ success: boolean, message: string, data?: IUserInfo }> {
         try {
-            const { email, phone, education, place } = data;
-            console.log("in service info....", email, phone, education, place);
-            
+            const { email, phone, education, place } = data;            
             const result = await this.userRepo.editInfo({ email, phone, education, place });
             const updatedUserInfo: IUserInfo = {
                 email: result.data?.email || '',
@@ -223,9 +209,7 @@ class UserService {
     }
 
     async addSkills(data:{email:string, skills:string[]}): Promise<{success: boolean, message:string, result?:string[]}>{
-        try {
-            console.log("rrrrrrrr",data);
-            
+        try {            
             const {email, skills} = data;
             const result = await this.userRepo.createSkills(email,{skills:{skills}});
             if(!result){
@@ -271,9 +255,7 @@ class UserService {
         }
     }
 
-    async addCV(data: { email: string, cvFile: { buffer: { type: string, data: number[] }, originalname: string } }): Promise<{ success: boolean, message: string, fileUrl?: string }> {
-        console.log("Data received:", data);
-    
+    async addCV(data: { email: string, cvFile: { buffer: { type: string, data: number[] }, originalname: string } }): Promise<{ success: boolean, message: string, fileUrl?: string }> {    
         try {
             const realFileName = data.cvFile.originalname
             const email = data.email;
@@ -319,9 +301,7 @@ class UserService {
     }
 
     async deleteCv(url:string, email:string): Promise<{success:boolean, message:string}>{
-        try {
-            console.log("url,email",url, email);
-            
+        try {            
             const result = await this.userRepo.removeCv(url,email);
             if(!result.success){
                 return {success:false, message:"Deleting url from db is failed"}
@@ -380,11 +360,8 @@ class UserService {
     
     async addCoverImg(data: { email: string; image: { buffer: { type: string; data: number[] }; originalname: string } }):Promise<{success:boolean, message:string, data?: { imageUrl: string; originalname: string }}>{
         try {
-            const { email, image: { originalname, buffer } } = data;
-            console.log("not buffer data",buffer.data);
-            
+            const { email, image: { originalname, buffer } } = data;            
             const bufferData = Buffer.from(buffer.data);
-            console.log("buffered data",bufferData);
             
             const uploadFile = await uploadFileToS3(bufferData, originalname);
             const result = await this.userRepo.saveCoverImg(email,uploadFile,originalname);
@@ -421,9 +398,7 @@ class UserService {
     async fetchUserDatasForPost(userId: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails }> {
         try {
     
-            const result = await this.userRepo.findUserDetailsForPost(userId);
-            console.log("ividaaa undooo?",result);
-            
+            const result = await this.userRepo.findUserDetailsForPost(userId);            
             if (!result || !result.data) {
                 return { success: false, message: "No data found" };
             }

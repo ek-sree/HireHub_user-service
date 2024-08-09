@@ -404,10 +404,6 @@ async getCoverImage(userId: string): Promise<{ success: boolean; message: string
     
 async findUserDetailsForPost(userId: string): Promise<{ success: boolean; message: string; data?: IUserPostDetails }> {
     try {
-
-        console.log("userId", userId);
-        console.log("userId type", typeof userId);
-
         const user = await User.findById({_id: new mongoose.Types.ObjectId(userId)});
         if (!user) {
             return { success: false, message: "No user found" };
@@ -549,7 +545,6 @@ async findFriends(userId: string): Promise<{ success: boolean; message: string; 
                 ]
             }).limit(4);
         }
-console.log("skill match",suggestedFriends);
 
         if (suggestedFriends.length < 4 && user.followers && user.followers.length > 0) {
             const friendsOfFriends = await User.find({
@@ -562,7 +557,6 @@ console.log("skill match",suggestedFriends);
 
             suggestedFriends = [...suggestedFriends, ...friendsOfFriends];
         }
-console.log("friendsOf friendd sugg",suggestedFriends);
 
         if (suggestedFriends.length < 4) {
             const randomUsers = await User.aggregate([
@@ -586,8 +580,6 @@ console.log("friendsOf friendd sugg",suggestedFriends);
             avatar: friend.avatar,
             isOnline: friend.isOnline
         }));
-console.log("data got", suggestedFriendsDetails);
-
         return {
             success: true,
             message: "Friend suggestions found",

@@ -532,6 +532,44 @@ class UserService {
             throw new Error("Error occurred while friend suggestion");
         }
     }
+
+    async followersList(userId: string): Promise<{ success: boolean, message: string, data?: IUserPostDetails[] }> {
+        try {
+            const result = await this.userRepo.findFollowers(userId);
+            if (!result || !result.data) {
+                return { success: false, message: "No data found" };
+            }
+    
+            const followers = result.data; 
+    
+            if (followers.length === 0) {
+                return { success: true, message: "No followers found", data: [] };
+            }
+                const updatedFollowers = await Promise.all(followers.map(async (follower) => {
+                if (follower.avatar) {
+                    const files = [{ url: follower.avatar.imageUrl, filename: follower.avatar.originalname }];
+                    const fetchedAvatar = await fetchFileFromS3(files);
+    
+                    if (fetchedAvatar.length > 0) {
+                        return {
+                            ...follower,
+                            avatar: {
+                                imageUrl: fetchedAvatar[0].url,
+                                originalname: fetchedAvatar[0].filename,
+                            }
+                        };
+                    }
+                }
+                return follower;
+            }));
+    
+            return { success: true, message: "Data found", data: updatedFollowers };
+        } catch (error) {
+            console.error("Error finding followers list:", error);
+            throw new Error("Error occurred while retrieving followers list");
+        }
+    }
+    
     
 }
 

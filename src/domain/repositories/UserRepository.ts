@@ -62,7 +62,6 @@ export class UserRepository implements IUserRepository {
             if (user_data.status === true) {
                 return { success: false, message: "Your account is blocked" };
             }
-    console.log("login dataaaaaaaaaa",user_data);
     user_data.isOnline=true
     await user_data.save();
             return { success: true, message: "User found", user_data };
@@ -216,7 +215,6 @@ export class UserRepository implements IUserRepository {
 
     async findSkills(userId:string):Promise<{success:boolean, message:string, data?:string[]}>{
         try {
-            console.log("userID",userId);
             
             const user = await User.findOne({_id: new mongoose.Types.ObjectId(userId)});
             if(!user){
@@ -590,6 +588,36 @@ async findFriends(userId: string): Promise<{ success: boolean; message: string; 
         console.log("Error find friend suggestion:", error);
         const err = error as Error;
         throw new Error(`Error find friend suggestion: ${err.message}`);
+    }
+}
+
+async findFollowers(userId: string): Promise<{ success: boolean, message: string, data?: IUserPostDetails[] }> {
+    try {
+        const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) }).select('followers');
+        if (!user) {
+            return { success: false, message: "No user found" };
+        }
+
+        const followerIds = user.followers;
+        if (!followerIds || followerIds.length === 0) {
+            return { success: true, message: "No followers found", data: [] };
+        }
+
+        const followersList = await User.find({ _id: { $in: followerIds } }).select('name avatar');
+        if (!followersList) {
+            return { success: false, message: "No followers data found" };
+        }
+        const data: IUserPostDetails[] = followersList.map(follower => ({
+            id: follower._id.toString(), 
+            name: follower.name,
+            avatar: follower.avatar
+        }));
+
+        return { success: true, message: "Followers found", data };
+    } catch (error) {
+        console.log("Error finding followers list:", error);
+        const err = error as Error;
+        throw new Error(`Error finding followers list: ${err.message}`);
     }
 }
 

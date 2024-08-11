@@ -110,6 +110,10 @@ export default class MessageHandler {
 
             case 'friend-suggesion':
                 response = await userController.friendSuggestions(data);
+                break;
+                
+            case 'followers-list':
+                response = await userController.followersLists(data);
                 break;    
 
             default:

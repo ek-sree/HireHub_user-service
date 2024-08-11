@@ -308,6 +308,16 @@ class UserController {
             throw new Error("Error occurred while finding friend suggestion");
         }
     }
+
+    async followersLists(userId:string){
+       try {
+        const result = await this.userService.followersList(userId);
+        return result
+       } catch (error) {
+        console.error("Error finding followers lists:", error);
+            throw new Error("Error occurred while finding followers lists");
+        }
+    }
 }
 
 export const userController = new UserController();

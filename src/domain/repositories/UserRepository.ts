@@ -593,6 +593,7 @@ async findFriends(userId: string): Promise<{ success: boolean; message: string; 
 
 async findFollowers(userId: string): Promise<{ success: boolean, message: string, data?: IUserPostDetails[] }> {
     try {
+        
         const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) }).select('followers');
         if (!user) {
             return { success: false, message: "No user found" };
@@ -621,5 +622,66 @@ async findFollowers(userId: string): Promise<{ success: boolean, message: string
     }
 }
 
-    
+async updateFollowers(userId: string, id: string): Promise<{ success: boolean, message: string, data?: IUserPostDetails[] }> {
+    try {
+        const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+        if (!user) {
+            return { success: false, message: "No user found" };
+        }
+
+        user.followers = user.followers?.filter((followerId) => followerId.toString() !== id);
+        await user.save();
+
+        const follower = await User.findOne({ _id: new mongoose.Types.ObjectId(id) });
+        if (!follower) {
+            return { success: false, message: "No follower found" };
+        }
+
+        follower.following = follower.following?.filter((followingId) => followingId.toString() !== userId);
+        await follower.save();
+
+        const updatedFollowers = await User.find({ _id: { $in: user.followers } }).select('name avatar');
+        const data: IUserPostDetails[] = updatedFollowers.map(follower => ({
+            id: follower._id.toString(),
+            name: follower.name,
+            avatar: follower.avatar
+        }));
+
+        return { success: true, message: "Removed successfully", data };
+    } catch (error) {
+        console.log("Error removing followers:", error);
+        const err = error as Error;
+        throw new Error(`Error removing followers: ${err.message}`);
+    }
+}
+
+async findFollowings(userId:string):Promise<{success:boolean, message:string, data?:IUserPostDetails[]}>{
+    try {
+        
+        const user = await User.findOne({_id:new mongoose.Types.ObjectId(userId)}).select('following');
+        
+        if(!user){
+            return {success:false, message:"No user found"}
+        }
+        const followingIds = user.following;
+        if(!followingIds || followingIds.length==0){
+            return {success:true, message:"No follwings found"}
+        }
+        const followingLists = await User.find({ _id: { $in: followingIds } }).select('name avatar');
+        if(!followingLists){
+            return {success:false, message:"no followingLists found"}
+        }
+        const data: IUserPostDetails[] = followingLists.map(following=>({
+            id: following._id.toString(),
+            name:following.name,
+            avatar:following.avatar
+        }))
+        return {success:true, message:"following list found", data}
+    } catch (error) {
+        console.log("Error finding following list:", error);
+        const err = error as Error;
+        throw new Error(`Error finding following list: ${err.message}`);
+    }
+}
+
 }

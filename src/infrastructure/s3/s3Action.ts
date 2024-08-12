@@ -43,7 +43,6 @@ export async function fetchFileFromS3(files: { url: string | undefined; filename
         const key = url.split('/').pop()?.split('?')[0];
 
         if (!key) {
-            console.error("File key is undefined for:", file);
             return { url: "", filename: file.filename }; 
         }
 

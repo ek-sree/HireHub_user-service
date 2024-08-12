@@ -116,6 +116,14 @@ export default class MessageHandler {
                 response = await userController.followersLists(data);
                 break;    
 
+            case 'remove-followers':
+                response = await userController.removeFollowers(data);
+                break;  
+                
+            case 'following-list':
+                response = await userController.followingLists(data);
+                break;    
+
             default:
                 response = { error: 'Operation not supported' };
                 break;

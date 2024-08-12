@@ -318,6 +318,29 @@ class UserController {
             throw new Error("Error occurred while finding followers lists");
         }
     }
+
+    async removeFollowers(data:{userId:string, id:string}){
+        try {
+            const userId = data.userId;
+            const id = data.id;
+            const result = await this.userService.removeFollower(userId,id);
+            return result;
+        } catch (error) {
+            console.error("Error removing followers :", error);
+            throw new Error("Error occurred while removing followers ");
+        }
+    }
+
+    async followingLists(data:{userId:string}){
+        try {
+            const userId = data.userId            
+            const result = await this.userService.followingList(userId);
+            return result;
+        } catch (error) {
+            console.error("Error finding following lists:", error);
+            throw new Error("Error occurred while finding following lists");
+        }
+    }
 }
 
 export const userController = new UserController();

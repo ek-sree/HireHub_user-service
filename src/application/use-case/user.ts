@@ -569,7 +569,81 @@ class UserService {
             throw new Error("Error occurred while retrieving followers list");
         }
     }
+
+    async removeFollower(userId:string, id:string):Promise<{success:boolean, message:string, data?:IUserPostDetails[]}>{
+        try {
+            const result = await this.userRepo.updateFollowers(userId,id);
+            if (!result || !result.data) {
+                return { success: false, message: "No data found" };
+            }
     
+            const followers = result.data; 
+    
+            if (followers.length === 0) {
+                return { success: true, message: "No followers found", data: [] };
+            }
+                const updatedFollowers = await Promise.all(followers.map(async (follower) => {
+                if (follower.avatar) {
+                    const files = [{ url: follower.avatar.imageUrl, filename: follower.avatar.originalname }];
+                    const fetchedAvatar = await fetchFileFromS3(files);
+    
+                    if (fetchedAvatar.length > 0) {
+                        return {
+                            ...follower,
+                            avatar: {
+                                imageUrl: fetchedAvatar[0].url,
+                                originalname: fetchedAvatar[0].filename,
+                            }
+                        };
+                    }
+                }
+                return follower;
+            }));
+    
+            return { success: true, message: "Data found", data: updatedFollowers };
+        } catch (error) {
+            console.error("Error removing followers :", error);
+            throw new Error("Error occurred while removing followers");
+        }
+    }
+    
+
+    async followingList(userId:string):Promise<{success:boolean, message:string, data?:IUserPostDetails[]}>{
+        try {
+            const result = await this.userRepo.findFollowings(userId);
+            if (!result || !result.data) {
+                return { success: false, message: "No data found" };
+            }
+    
+            const followings = result.data; 
+    
+            if (followings.length === 0) {
+                return { success: true, message: "No followers found", data: [] };
+            }
+                const updatedFollowing = await Promise.all(followings.map(async (following) => {
+                if (following.avatar) {
+                    const files = [{ url: following.avatar.imageUrl, filename: following.avatar.originalname }];
+                    const fetchedAvatar = await fetchFileFromS3(files);
+    
+                    if (fetchedAvatar.length > 0) {
+                        return {
+                            ...following,
+                            avatar: {
+                                imageUrl: fetchedAvatar[0].url,
+                                originalname: fetchedAvatar[0].filename,
+                            }
+                        };
+                    }
+                }
+                return following;
+            }));
+    
+            return { success: true, message: "Data found", data: updatedFollowing };
+        } catch (error) {
+            console.error("Error finding following list:", error);
+            throw new Error("Error occurred while retrieving following list");
+        }
+    }
     
 }
 
